@@ -213,7 +213,7 @@ class ErrorEstimate(torch.nn.Module):
 
 
 class StructureModule(torch.nn.Module):
-    def __init__(self, node_dim, n_layers=4, rel_pos_dim=16, embed_dim=32, **kwargs):
+    def __init__(self, node_dim=23, n_layers=8, rel_pos_dim=16, embed_dim=32, **kwargs):
         super().__init__()
         self.n_layers = n_layers
         self.rel_pos_dim = rel_pos_dim

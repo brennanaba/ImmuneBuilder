@@ -4,10 +4,11 @@ from ABodyBuilder2.models import StructureModule
 from ABodyBuilder2.util import get_encoding, to_pdb
 from ABodyBuilder2.refine import refine
 
+torch.set_default_tensor_type(torch.DoubleTensor)
 
 class Antibody:
-    def __init__(self, sequence_dict, atoms):
-        self.atoms = atoms
+    def __init__(self, sequence_dict, output):
+        self.atoms, self.encodings = output
         self.sequence_dict = sequence_dict
 
     def save_unrefined(self, filename):
@@ -31,18 +32,18 @@ class Antibody:
 
 class ABodyBuilder2:
     def __init__(self):
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         current_directory = os.path.dirname(os.path.realpath(__file__))
 
-        self.model = StructureModule().to(device)
+        self.model = StructureModule().to(self.device)
         path = os.path.join(current_directory, "trained_model", "run_1_6")
-        self.model.load_state_dict(torch.load(path, map_location=torch.device(device)))
+        self.model.load_state_dict(torch.load(path, map_location=torch.device(self.device)))
 
 
     def predict(self, sequence_dict):
-        encoding = get_encoding(sequence_dict)
+        encoding = torch.tensor(get_encoding(sequence_dict), device = self.device)
         full_seq = "".join(sequence_dict.values())
 
-        atoms = self.model(encoding, full_seq)
+        output = self.model(encoding, full_seq)
 
-        return Antibody(sequence_dict, atoms)
+        return Antibody(sequence_dict, output)
