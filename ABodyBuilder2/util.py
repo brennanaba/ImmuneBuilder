@@ -10,7 +10,7 @@ def get_encoding(sequence_dict):
     
     encodings = []
 
-    for j,chain in enumerate(sequence_dict):
+    for j,chain in enumerate("HL"):
         seq = sequence_dict[chain]
         one_hot_amino = get_one_hot(np.array([res_to_num(x) for x in seq]))
         one_hot_region = get_one_hot(j * np.ones(len(seq), dtype=int), 2)
@@ -24,9 +24,9 @@ def to_pdb(sequence_dict, all_atoms):
     atom_index = 0
     pdb_lines = []
     record_type = "ATOM"
-    seq = "".join(sequence_dict.values())
-    chain_ids = "".join(sequence_dict.keys())
-    chain_index = [0]*len(sequence_dict[chain_ids[0]]) + [1]*len(sequence_dict[chain_ids[1]])
+    seq = sequence_dict["H"] + sequence_dict["L"]
+    chain_ids = "HL"
+    chain_index = [0]*len(sequence_dict["H"]) + [1]*len(sequence_dict["L"])
     chain_start, chain_id = 0, chain_ids[0]
 
     for i, amino in enumerate(seq):

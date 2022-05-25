@@ -14,8 +14,8 @@ def refine_once(input_file, output_file):
     fixer.findMissingAtoms()
     fixer.addMissingAtoms()
 
-    # Using amber14 recommended protein force field
-    forcefield = app.ForceField("amber14/protein.ff14SB.xml")
+    # Using amber99sb protein force field
+    forcefield = app.ForceField("amber99sb.xml")
 
     # Fill in the gaps with OpenMM Modeller
     modeller = app.Modeller(fixer.topology, fixer.positions)
@@ -37,7 +37,7 @@ def refine_once(input_file, output_file):
     system.addForce(force)
 
     # Set up integrator
-    integrator = LangevinIntegrator(100, 0.01, 0.0)
+    integrator = LangevinIntegrator(0, 0.01, 0.0)
 
     # Set up the simulation
     simulation = app.Simulation(modeller.topology, system, integrator)
@@ -59,3 +59,6 @@ def refine(input_file, output_file, n=5):
             continue
         else:
             break
+
+    for i in range(5):
+        refine_once(output_file, output_file)
