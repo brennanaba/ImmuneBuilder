@@ -1,3 +1,5 @@
+restypes = 'ARNDCQEGHILKMFPSTWYV'
+
 # Residue names definition:
 restype_1to3 = {
     'A': 'ALA',
@@ -287,3 +289,6 @@ residue_van_der_waals_radius = {
     residue_atoms}
 
 valid_rigids = {x: len(chi_angles_atoms[x]) + 2 for x in chi_angles_atoms}
+
+r2n = {x: i for i, x in enumerate(restypes)}
+res_to_num = lambda x: r2n[x] if x in r2n else len(r2n)

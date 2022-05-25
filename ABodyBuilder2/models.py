@@ -1,8 +1,8 @@
 import torch
 from einops import rearrange
 
-from AbodyBuilder2.rigids import Rigid, Rot, vec_from_tensor
-from AbodyBuilder2.util import global_frames_from_bb_frame_and_torsion_angles, all_atoms_from_global_reference_frames
+from ABodyBuilder2.rigids import Rigid, Rot, rigid_body_identity, vec_from_tensor, global_frames_from_bb_frame_and_torsion_angles, all_atoms_from_global_reference_frames
+
 
 class InvariantPointAttention(torch.nn.Module):
     def __init__(self, node_dim, edge_dim, heads=12, head_dim=16, n_query_points=4, n_value_points=8, **kwargs):
@@ -227,7 +227,8 @@ class StructureModule(torch.nn.Module):
                              **kwargs)
              for i in range(n_layers)])
 
-    def forward(self, node_features, rigid_in, sequence):
+    def forward(self, node_features, sequence):
+        rigid_in = rigid_body_identity(len(sequence))
         relative_positions = (torch.arange(node_features.shape[-2])[None] -
                               torch.arange(node_features.shape[-2])[:, None])
         relative_positions = relative_positions.clamp(min=-self.rel_pos_dim, max=self.rel_pos_dim) + self.rel_pos_dim
