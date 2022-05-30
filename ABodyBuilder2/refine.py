@@ -32,7 +32,7 @@ def refine_once(input_file, output_file):
 
     for residue in modeller.topology.residues():
         for atom in residue.atoms():
-            if atom.name in ["CA", "CB", "N", "C"]:
+            if atom.name in ["CA"]:
                 force.addParticle(atom.index, modeller.positions[atom.index])
     system.addForce(force)
 
@@ -60,5 +60,4 @@ def refine(input_file, output_file, n=5):
         else:
             break
 
-    for i in range(5):
-        refine_once(output_file, output_file)
+
