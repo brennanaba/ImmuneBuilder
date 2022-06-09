@@ -150,7 +150,7 @@ class TorsionAngles(torch.nn.Module):
 
 
 class StructureUpdate(torch.nn.Module):
-    def __init__(self, node_dim, edge_dim, propagate_rotation_gradient=False, dropout=0.1, **kwargs):
+    def __init__(self, node_dim, edge_dim, propagate_rotation_gradient=False, dropout=0.0, **kwargs):
         super().__init__()
         self.propagate_rotation_gradient = propagate_rotation_gradient
 
@@ -164,7 +164,7 @@ class StructureUpdate(torch.nn.Module):
             torch.nn.LayerNorm(node_dim)
         )
         self.residual = torch.nn.Sequential(
-            torch.nn.Linear(node_dim, 2 * node_dim),  # Pulling these dims out of nowhere
+            torch.nn.Linear(node_dim, 2 * node_dim),  
             torch.nn.ReLU(),
             torch.nn.Linear(2 * node_dim, 2 * node_dim),
             torch.nn.ReLU(),
@@ -213,7 +213,7 @@ class ErrorEstimate(torch.nn.Module):
 
 
 class StructureModule(torch.nn.Module):
-    def __init__(self, node_dim=23, n_layers=8, rel_pos_dim=16, embed_dim=32, **kwargs):
+    def __init__(self, node_dim=23, n_layers=8, rel_pos_dim=32, embed_dim=64, **kwargs):
         super().__init__()
         self.n_layers = n_layers
         self.rel_pos_dim = rel_pos_dim

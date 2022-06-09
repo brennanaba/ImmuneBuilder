@@ -36,14 +36,16 @@ class ABodyBuilder2:
         current_directory = os.path.dirname(os.path.realpath(__file__))
 
         self.model = StructureModule().to(self.device)
-        path = os.path.join(current_directory, "trained_model", "run_1_6")
+        self.model.eval()
+        path = os.path.join(current_directory, "trained_model", "run_2_2")
         self.model.load_state_dict(torch.load(path, map_location=torch.device(self.device)))
 
 
     def predict(self, sequence_dict):
-        encoding = torch.tensor(get_encoding(sequence_dict), device = self.device)
-        full_seq = "".join(sequence_dict.values())
+        with torch.no_grad():
+            encoding = torch.tensor(get_encoding(sequence_dict), device = self.device)
+            full_seq = "".join(sequence_dict.values())
 
-        output = self.model(encoding, full_seq)
+            output = self.model(encoding, full_seq)
 
         return Antibody(sequence_dict, output)

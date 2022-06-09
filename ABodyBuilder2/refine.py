@@ -14,8 +14,8 @@ def refine_once(input_file, output_file):
     fixer.findMissingAtoms()
     fixer.addMissingAtoms()
 
-    # Using amber99sb protein force field
-    forcefield = app.ForceField("amber99sb.xml")
+    # Using amber14 recommended protein force field
+    forcefield = app.ForceField("amber14/protein.ff14SB.xml")
 
     # Fill in the gaps with OpenMM Modeller
     modeller = app.Modeller(fixer.topology, fixer.positions)
@@ -32,7 +32,7 @@ def refine_once(input_file, output_file):
 
     for residue in modeller.topology.residues():
         for atom in residue.atoms():
-            if atom.name in ["CA"]:
+            if atom.name in ["CA", "CB", "N", "C"]:
                 force.addParticle(atom.index, modeller.positions[atom.index])
     system.addForce(force)
 
