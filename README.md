@@ -25,7 +25,7 @@ To predict an antibody structure you can do the following
 
 
 ```python
-from ABodyBuilder2.ABodyBuilder2 import ABodyBuilder2
+from ABodyBuilder2 import ABodyBuilder2
 predictor = ABodyBuilder2()
 
 output_file = "my_antibody.pdb"
