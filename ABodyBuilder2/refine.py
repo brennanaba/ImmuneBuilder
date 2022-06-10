@@ -56,6 +56,7 @@ def refine(input_file, output_file, n=5):
         try:
             refine_once(input_file, output_file)
         except Exception:
+            print("FAILED REFINEMENT")
             continue
         else:
             break

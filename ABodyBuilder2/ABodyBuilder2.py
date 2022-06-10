@@ -35,9 +35,9 @@ class ABodyBuilder2:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         current_directory = os.path.dirname(os.path.realpath(__file__))
 
-        self.model = StructureModule().to(self.device)
+        self.model = StructureModule(rel_pos_dim=64, embed_dim=96).to(self.device)
         self.model.eval()
-        path = os.path.join(current_directory, "trained_model", "run_2_2")
+        path = os.path.join(current_directory, "trained_model", "run_2_6")
         self.model.load_state_dict(torch.load(path, map_location=torch.device(self.device)))
 
 
