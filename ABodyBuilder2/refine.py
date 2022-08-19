@@ -7,7 +7,7 @@ LENGTH = unit.angstroms
 spring_unit = ENERGY / (LENGTH ** 2)
 
 
-def refine_once(input_file, output_file):
+def refine_once(input_file, output_file, k = 2.5):
     fixer = pdbfixer.PDBFixer(input_file)
 
     fixer.findMissingResidues()
@@ -21,12 +21,14 @@ def refine_once(input_file, output_file):
     modeller = app.Modeller(fixer.topology, fixer.positions)
     modeller.addHydrogens(forcefield)
 
+    app.PDBFile.writeFile()
+
     # Set up force field
     system = forcefield.createSystem(modeller.topology)
 
     # Keep atoms close to initial prediction
     force = CustomExternalForce("k * ((x-x0)^2 + (y-y0)^2 + (z-z0)^2)")
-    force.addGlobalParameter("k", 1.0 * spring_unit)
+    force.addGlobalParameter("k", k * spring_unit)
     for p in ["x0", "y0", "z0"]:
         force.addPerParticleParameter(p)
 
@@ -80,9 +82,10 @@ def peptide_bonds_check(file_name, tol = 0.1):
 
 
 def refine(input_file, output_file, n=5):
-    for _ in range(n):
+    ks = [2.5,1.0,0.5,0.25,0.1] # Refine with weaker restraints each time it fails.
+    for i in range(n):
         try:
-            refine_once(input_file, output_file)
+            refine_once(input_file, output_file, k = ks[i])
         except Exception:
             print("REFINEMENT FAILED ONCE: Trying again")
             continue
