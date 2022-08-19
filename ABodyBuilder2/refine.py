@@ -7,7 +7,7 @@ LENGTH = unit.angstroms
 spring_unit = ENERGY / (LENGTH ** 2)
 
 
-def refine_once(input_file, output_file, k = 2.5):
+def refine_once(input_file, output_file, k=1.0):
     fixer = pdbfixer.PDBFixer(input_file)
 
     fixer.findMissingResidues()
@@ -80,19 +80,18 @@ def peptide_bonds_check(file_name, tol = 0.1):
 
 
 def refine(input_file, output_file, n=5):
-    ks = [2.5,1.0,0.5,0.25,0.1] # Refine with weaker restraints each time it fails.
+    ks = [2.5,1.5,1.0,0.5,0.1]
     for i in range(n):
         try:
             refine_once(input_file, output_file, k = ks[i])
-        except Exception as e:
+        except Exception:
             print("REFINEMENT FAILED ONCE: Trying again")
-            if i+1 == n:
-                raise e
             continue
         else:
             if peptide_bonds_check(output_file):
                 break
             else:
                 input_file = output_file
+
 
 
