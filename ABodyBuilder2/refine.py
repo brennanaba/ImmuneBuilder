@@ -21,8 +21,6 @@ def refine_once(input_file, output_file, k = 2.5):
     modeller = app.Modeller(fixer.topology, fixer.positions)
     modeller.addHydrogens(forcefield)
 
-    app.PDBFile.writeFile()
-
     # Set up force field
     system = forcefield.createSystem(modeller.topology)
 
