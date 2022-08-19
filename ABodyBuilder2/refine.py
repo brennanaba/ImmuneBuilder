@@ -25,8 +25,8 @@ def refine_once(input_file, output_file):
     system = forcefield.createSystem(modeller.topology)
 
     # Keep atoms close to initial prediction
-    force = CustomExternalForce("0.5 * k * ((x-x0)^2 + (y-y0)^2 + (z-z0)^2)")
-    force.addGlobalParameter("k", 2.5 * spring_unit)
+    force = CustomExternalForce("k * ((x-x0)^2 + (y-y0)^2 + (z-z0)^2)")
+    force.addGlobalParameter("k", 1.0 * spring_unit)
     for p in ["x0", "y0", "z0"]:
         force.addPerParticleParameter(p)
 

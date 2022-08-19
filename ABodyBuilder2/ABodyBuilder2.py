@@ -37,7 +37,7 @@ class ABodyBuilder2:
 
         self.model = StructureModule(rel_pos_dim=64, embed_dim=128).to(self.device)
         self.model.eval()
-        path = os.path.join(current_directory, "trained_model", "best_model")
+        path = os.path.join(current_directory, "trained_model", "run_4_8")
         self.model.load_state_dict(torch.load(path, map_location=torch.device(self.device)))
 
 
