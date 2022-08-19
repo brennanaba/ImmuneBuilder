@@ -86,8 +86,10 @@ def refine(input_file, output_file, n=5):
     for i in range(n):
         try:
             refine_once(input_file, output_file, k = ks[i])
-        except Exception:
+        except Exception as e:
             print("REFINEMENT FAILED ONCE: Trying again")
+            if i+1 == n:
+                raise e
             continue
         else:
             if peptide_bonds_check(output_file):
