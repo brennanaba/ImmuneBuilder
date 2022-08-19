@@ -51,14 +51,45 @@ def refine_once(input_file, output_file):
                               out_handle, keepIds=True)
 
 
+def peptide_bonds_check(file_name, tol = 0.1):
+    with open(file_name) as file:
+        txt = file.readlines()
+
+    Ns = [x for x in txt if x[13:16] == "N  "]
+    Cs = [x for x in txt if x[13:16] == "C  "]
+    all_good = True
+
+    for i,n_line in enumerate(Ns[1:]):
+        c_line = Cs[i]
+
+        n_chain = n_line[21:23]
+        c_chain = c_line[21:23]
+
+        if c_chain != n_chain:
+            continue
+
+        x_diff = float(c_line[30:38]) - float(n_line[30:38])
+        y_diff = float(c_line[38:46]) - float(n_line[38:46])
+        z_diff = float(c_line[46:54]) - float(n_line[46:54])
+        bond_error = abs((x_diff**2 + y_diff**2 + z_diff**2)**(1/2) - 1.32901)
+
+        if bond_error > tol:
+            all_good = False
+            break
+    return all_good
+
+
 def refine(input_file, output_file, n=5):
     for _ in range(n):
         try:
             refine_once(input_file, output_file)
         except Exception:
-            print("FAILED REFINEMENT")
+            print("REFINEMENT FAILED ONCE: Trying again")
             continue
         else:
-            break
+            if peptide_bonds_check(output_file):
+                break
+            else:
+                input_file = output_file
 
 
