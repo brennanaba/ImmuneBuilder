@@ -1,5 +1,5 @@
 import pdbfixer
-from simtk.openmm import app, LangevinIntegrator, CustomExternalForce
+from simtk.openmm import app, LangevinIntegrator, CustomExternalForce, OpenMMException
 from simtk import unit
 
 ENERGY = unit.kilocalories_per_mole
@@ -71,7 +71,7 @@ def peptide_bonds_check(file_name, tol = 0.1):
         x_diff = float(c_line[30:38]) - float(n_line[30:38])
         y_diff = float(c_line[38:46]) - float(n_line[38:46])
         z_diff = float(c_line[46:54]) - float(n_line[46:54])
-        bond_error = abs((x_diff**2 + y_diff**2 + z_diff**2)**(1/2) - 1.32901)
+        bond_error = abs((x_diff**2 + y_diff**2 + z_diff**2)**(1/2) - 1.329)
 
         if bond_error > tol:
             all_good = False
@@ -80,13 +80,14 @@ def peptide_bonds_check(file_name, tol = 0.1):
 
 
 def refine(input_file, output_file, n=5):
-    ks = [2.5,1.5,1.0,0.5,0.1]
+    ks = [2.5,1.0,0.5,0.25,0.1]
     for i in range(n):
         try:
             refine_once(input_file, output_file, k = ks[i])
-        except Exception:
-            print("REFINEMENT FAILED ONCE: Trying again")
-            continue
+        except OpenMMException as e:
+            if i + 1 == n:
+                print("OPENMM FAILED TO REFINE")
+                raise e
         else:
             if peptide_bonds_check(output_file):
                 break
