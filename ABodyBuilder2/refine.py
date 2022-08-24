@@ -21,27 +21,34 @@ def refine(input_file, output_file, n=5):
     k1 = k1s[0]
     k2 = -1 if cis_check(fixer.topology, fixer.positions) else k2s[0]
     topology, positions = refine_once(fixer.topology, fixer.positions, k1=k1, k2=k2)
+    acceptable_bonds, trans_peptide_bonds = bond_check(topology, positions), cis_check(topology, positions)
+    correct_chilarity = stereo_check(topology, positions)
 
-    for i in range(1,n):
-        acceptable_bonds, trans_peptide_bonds = bond_check(topology, positions), cis_check(topology, positions)
+    for i in range(1,n-1):
+
         if not acceptable_bonds:
             print("Bonds failed")
             k1 = k1s[i]
         if not trans_peptide_bonds:
             print("CIS failed")
             k2 = k2s[i]
-        if not stereo_check(topology, positions):
+        if not correct_chilarity:
             print("Stereo failed")
-        if acceptable_bonds and trans_peptide_bonds and stereo_check(topology, positions):
+        if acceptable_bonds and trans_peptide_bonds and correct_chilarity:
             break
         else:
             try:
                 topology, positions = refine_once(fixer.topology, fixer.positions, k1=k1, k2 = k2)
+                acceptable_bonds, trans_peptide_bonds = bond_check(topology, positions), cis_check(topology, positions)
+                correct_chilarity = stereo_check(topology, positions)
             except OpenMMException:
                 continue
 
-    if not stereo_check(topology, positions):
-        print("Stereo fail")
+    if not (acceptable_bonds and trans_peptide_bonds and correct_chilarity):
+        try:
+            refine_once(topology, positions, k1=.01, k2=-1) # Try one last time with very loose restraints
+        except OpenMMException:
+            print("Refinemet failed for {}.\nGiving up...".format(output_file))
 
     with open(output_file, "w") as out_handle:
         app.PDBFile.writeFile(topology, positions, out_handle, keepIds=True)
@@ -77,9 +84,14 @@ def refine_once(topology, positions, k1=2.5, k2=2.5):
         cis_force.addGlobalParameter("k2", k2 * ENERGY)
 
         for chain in modeller.topology.chains():
-            residues = [{atom.name:atom.index for atom in res.atoms() if atom.name in ["N", "CA", "C"]} for res in chain.residues()]
-            for i,resi in enumerate(residues[:-1]):
-                n_resi = residues[i+1]
+            residues = [res for res in chain.residues()]
+            relevant_atoms = [{atom.name:atom.index for atom in res.atoms() if atom.name in ["N", "CA", "C"]} for res in residues]
+            for i in range(1,len(residues)):
+                if residues[i].name == "PRO":
+                    continue
+
+                resi = relevant_atoms[i-1]
+                n_resi = relevant_atoms[i]
                 cis_force.addTorsion(resi["CA"], resi["C"], n_resi["N"], n_resi["CA"])
         
         system.addForce(cis_force)
@@ -122,9 +134,15 @@ def cos_of_torsion(p0,p1,p2,p3):
 
 def cis_check(topology, positions):
     for chain in topology.chains():
-        residues = [{atom.name:atom.index for atom in res.atoms() if atom.name in ["N", "CA", "C"]} for res in chain.residues()]
-        for i in range(len(residues)-1):
-            p0,p1,p2,p3 = positions[residues[i]["CA"]],positions[residues[i]["C"]],positions[residues[i+1]["N"]],positions[residues[i+1]["CA"]]
+        residues = [res for res in chain.residues()]
+        relevant_atoms = [{atom.name:atom.index for atom in res.atoms() if atom.name in ["N", "CA", "C"]} for res in residues]
+        for i in range(1,len(residues)):
+            if residues[i].name == "PRO":
+                continue
+
+            resi = relevant_atoms[i-1]
+            n_resi = relevant_atoms[i]
+            p0,p1,p2,p3 = positions[resi["CA"]],positions[resi["C"]],positions[n_resi["N"]],positions[n_resi["CA"]]
             if cos_of_torsion(p0,p1,p2,p3) > 0:
                 return False
     return True
