@@ -34,6 +34,8 @@ def to_pdb(sequence_dict, all_atoms):
             if atom in residue_atoms[amino]:
                 j = residue_atoms[amino].index(atom)
                 pos = all_atoms[i, j]
+                if pos.mean() != pos.mean():
+                    continue
                 name = f' {atom}'
                 alt_loc = ''
                 res_name_3 = restype_1to3[amino]

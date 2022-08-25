@@ -249,4 +249,10 @@ class StructureModule(torch.nn.Module):
         all_reference_frames = global_frames_from_bb_frame_and_torsion_angles(rigid_in, torsions, sequence)
         all_atoms = all_atoms_from_global_reference_frames(all_reference_frames, sequence)
 
+        # Remove atoms of side chains with outrageous clashes
+        ds = torch.linalg.norm(all_atoms[None,:,None] - all_atoms[:,None,:,None], axis = -1)
+        ds[(ds!=ds) | (ds==0.0)] = 10
+        min_ds = ds.min(dim=-1)[0].min(dim=-1)[0].min(dim=-1)[0]
+        all_atoms[min_ds < 0.15, 5:, :] = float("Nan")
+
         return  all_atoms, new_node_features

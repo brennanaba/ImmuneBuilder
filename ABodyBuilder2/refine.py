@@ -8,7 +8,7 @@ LENGTH = unit.angstroms
 spring_unit = ENERGY / (LENGTH ** 2)
 
 
-def refine(input_file, output_file, n=5):
+def refine(input_file, output_file, n=6):
     k1s = [2.5,1,0.5,0.25,0.1]
     k2s = [2.5,5,7.5,15,25]
 
@@ -46,6 +46,7 @@ def refine(input_file, output_file, n=5):
 
     if not (acceptable_bonds and trans_peptide_bonds and correct_chilarity):
         try:
+            print("Final try!!")
             refine_once(topology, positions, k1=.01, k2=-1) # Try one last time with very loose restraints
         except OpenMMException:
             print("Refinemet failed for {}.\nGiving up...".format(output_file))
@@ -61,7 +62,7 @@ def refine_once(topology, positions, k1=2.5, k2=2.5):
 
     # Fill in the gaps with OpenMM Modeller
     modeller = app.Modeller(topology, positions)
-    modeller.addHydrogens()
+    modeller.addHydrogens(forcefield)
 
     # Set up force field
     system = forcefield.createSystem(modeller.topology)
