@@ -94,7 +94,7 @@ def refine_once(topology, positions, k1=2.5, k2=2.5):
     simulation.context.setPositions(modeller.positions)
 
     # Minimize the energy
-    simulation.minimizeEnergy(tolerance = 1*ENERGY)
+    simulation.minimizeEnergy()
 
     return simulation.topology, simulation.context.getState(getPositions=True).getPositions()
 
