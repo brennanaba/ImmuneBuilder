@@ -27,13 +27,9 @@ def refine(input_file, output_file, n=6):
     for i in range(1,n-1):
 
         if not acceptable_bonds:
-            print("Bonds failed")
             k1 = k1s[i]
         if not trans_peptide_bonds:
-            print("CIS failed")
             k2 = k2s[i]
-        if not correct_chilarity:
-            print("Stereo failed")
         if acceptable_bonds and trans_peptide_bonds and correct_chilarity:
             break
         else:
@@ -46,10 +42,9 @@ def refine(input_file, output_file, n=6):
 
     if not (acceptable_bonds and trans_peptide_bonds and correct_chilarity):
         try:
-            print("Final try!!")
-            refine_once(topology, positions, k1=.01, k2=-1) # Try one last time with very loose restraints
+            topology, positions = refine_once(topology, positions, k1=.01, k2=-1) # Try one last time with very loose restraints
         except OpenMMException:
-            print("Refinemet failed for {}.\nGiving up...".format(output_file))
+            print("Refinemet failed for {}.".format(output_file))
 
     with open(output_file, "w") as out_handle:
         app.PDBFile.writeFile(topology, positions, out_handle, keepIds=True)

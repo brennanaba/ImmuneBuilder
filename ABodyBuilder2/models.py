@@ -253,6 +253,6 @@ class StructureModule(torch.nn.Module):
         ds = torch.linalg.norm(all_atoms[None,:,None] - all_atoms[:,None,:,None], axis = -1)
         ds[(ds!=ds) | (ds==0.0)] = 10
         min_ds = ds.min(dim=-1)[0].min(dim=-1)[0].min(dim=-1)[0]
-        all_atoms[min_ds < 0.15, 5:, :] = float("Nan")
+        all_atoms[min_ds < 0.2, 5:, :] = float("Nan")
 
         return  all_atoms, new_node_features
