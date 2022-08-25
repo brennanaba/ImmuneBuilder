@@ -9,8 +9,8 @@ spring_unit = ENERGY / (LENGTH ** 2)
 
 
 def refine(input_file, output_file, n=6):
-    k1s = [2.5,1,0.5,0.25,0.1]
-    k2s = [2.5,5,7.5,15,25]
+    k1s = [2.5,1,0.5,0.25,0.1,0.001]
+    k2s = [2.5,5,7.5,15,25,50]
 
     fixer = pdbfixer.PDBFixer(input_file)
 
@@ -20,31 +20,25 @@ def refine(input_file, output_file, n=6):
     
     k1 = k1s[0]
     k2 = -1 if cis_check(fixer.topology, fixer.positions) else k2s[0]
-    topology, positions = refine_once(fixer.topology, fixer.positions, k1=k1, k2=k2)
-    acceptable_bonds, trans_peptide_bonds = bond_check(topology, positions), cis_check(topology, positions)
-    correct_chilarity = stereo_check(topology, positions)
 
-    for i in range(1,n-1):
-
-        if not acceptable_bonds:
-            k1 = k1s[i]
-        if not trans_peptide_bonds:
-            k2 = k2s[i]
-        if acceptable_bonds and trans_peptide_bonds and correct_chilarity:
-            break
-        else:
-            try:
-                topology, positions = refine_once(fixer.topology, fixer.positions, k1=k1, k2 = k2)
-                acceptable_bonds, trans_peptide_bonds = bond_check(topology, positions), cis_check(topology, positions)
-                correct_chilarity = stereo_check(topology, positions)
-            except OpenMMException:
+    for i in range(n):
+        try:
+            topology, positions = refine_once(fixer.topology, fixer.positions, k1=k1, k2 = k2)
+            acceptable_bonds, trans_peptide_bonds = bond_check(topology, positions), cis_check(topology, positions)
+            correct_chilarity = stereo_check(topology, positions)
+        except OpenMMException as e:
+            if (i == n-1) and (positions not in locals()):
+                print("OpenMM failed to refine {}".format(output_file))
+                raise e
+            else:
                 continue
 
-    if not (acceptable_bonds and trans_peptide_bonds and correct_chilarity):
-        try:
-            topology, positions = refine_once(topology, positions, k1=.01, k2=-1) # Try one last time with very loose restraints
-        except OpenMMException:
-            print("Refinemet failed for {}.".format(output_file))
+        if not acceptable_bonds:
+            k1 = k1s[min(i, len(k1s)-1)]
+        if not trans_peptide_bonds:
+            k2 = k2s[min(i, len(k2s)-1)]
+        if acceptable_bonds and trans_peptide_bonds and correct_chilarity:
+            break
 
     with open(output_file, "w") as out_handle:
         app.PDBFile.writeFile(topology, positions, out_handle, keepIds=True)
