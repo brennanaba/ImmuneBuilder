@@ -96,7 +96,46 @@ def refine_once(topology, positions, k1=2.5, k2=2.5):
     # Minimize the energy
     simulation.minimizeEnergy()
 
+    # Remove D-stereoisomers
+    simulation =  chirality_fixer(simulation)
+
     return simulation.topology, simulation.context.getState(getPositions=True).getPositions()
+
+
+def chirality_fixer(simulation):
+    topology = simulation.topology
+    positions = simulation.context.getState(getPositions=True).getPositions()
+    
+    d_stereoisomers = []
+    for residue in topology.residues():
+        if residue.name == "GLY":
+            continue
+
+        atom_indices = {atom.name:atom.index for atom in residue.atoms() if atom.name in ["N", "CA", "C", "CB"]}
+        vectors = [positions[atom_indices[i]] - positions[atom_indices["CA"]] for i in ["N", "C", "CB"]]
+
+        if np.dot(np.cross(vectors[0], vectors[1]), vectors[2]) < .0*LENGTH**3:
+            # If it is a D-stereoisomer then flip its H atom
+            indices = [x.index for x in residue.atoms() if x.name in ["HA", "CA"]]
+            positions[indices[0]] = 2*positions[indices[1]] - positions[indices[0]]
+            
+            # Fix the H atom in place
+            particle_mass = simulation.system.getParticleMass(indices[0])
+            simulation.system.setParticleMass(indices[0], 0.0)
+            d_stereoisomers.append((indices[0], particle_mass))
+            
+    if len(d_stereoisomers) > 0:
+        simulation.context.setPositions(positions)
+
+        # Minimize the energy with the hydrogens fixed
+        simulation.minimizeEnergy()
+
+        # Minimize the energy letting the hydrogens move
+        for atom in d_stereoisomers:
+            simulation.system.setParticleMass(*atom)
+        simulation.minimizeEnergy()
+    
+    return simulation
 
 
 def bond_check(topology, positions):
