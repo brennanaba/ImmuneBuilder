@@ -149,6 +149,7 @@ def bond_check(topology, positions):
     for chain in topology.chains():
         residues = [{atom.name:atom.index for atom in res.atoms() if atom.name in ["N", "C"]} for res in chain.residues()]
         for i in range(len(residues)-1):
+            # For simplicity we only check the peptide bond length as the rest should be correct as they are hard coded 
             v = np.linalg.norm(positions[residues[i]["C"]] -  positions[residues[i+1]["N"]])
             if abs(v - 1.329*LENGTH) > 0.1*LENGTH:
                 return False

@@ -20,12 +20,11 @@ def get_encoding(sequence_dict):
     return np.concatenate(encodings, axis = 0)
     
 
-def to_pdb(sequence_dict, all_atoms):
+def to_pdb(sequence_dict, all_atoms, chain_ids = "HL"):
     atom_index = 0
     pdb_lines = []
     record_type = "ATOM"
     seq = sequence_dict["H"] + sequence_dict["L"]
-    chain_ids = "HL"
     chain_index = [0]*len(sequence_dict["H"]) + [1]*len(sequence_dict["L"])
     chain_start, chain_id = 0, chain_ids[0]
 
