@@ -23,9 +23,9 @@ def refine(input_file, output_file, n=6):
 
     for i in range(n):
         try:
-            topology, positions = refine_once(fixer.topology, fixer.positions, k1=k1, k2 = k2)
+            simulation = refine_once(fixer.topology, fixer.positions, k1=k1, k2 = k2)
+            topology, positions = simulation.topology, simulation.context.getState(getPositions=True).getPositions()
             acceptable_bonds, trans_peptide_bonds = bond_check(topology, positions), cis_check(topology, positions)
-            correct_chilarity = stereo_check(topology, positions)
         except OpenMMException as e:
             if (i == n-1) and ("positions" not in locals()):
                 print("OpenMM failed to refine {}".format(output_file))
@@ -33,12 +33,22 @@ def refine(input_file, output_file, n=6):
             else:
                 continue
 
+        # If peptide bonds are the wrong length, decrease the strength of the positional restraint
         if not acceptable_bonds:
             k1 = k1s[min(i, len(k1s)-1)]
+
+        # If there are still cis isomers in the model, increase the force to fix these
         if not trans_peptide_bonds:
             k2 = k2s[min(i, len(k2s)-1)]
-        if acceptable_bonds and trans_peptide_bonds and correct_chilarity:
-            break
+        
+        # If peptide bond lengths and torsions are okay, check and fix the chirality.
+        if acceptable_bonds and trans_peptide_bonds:
+            simulation = chirality_fixer(simulation)
+            topology, positions = simulation.topology, simulation.context.getState(getPositions=True).getPositions()
+
+            # If it passes all the tests, we are done
+            if bond_check(topology, positions) and cis_check(topology, positions) and stereo_check(topology, positions):
+                break
 
     with open(output_file, "w") as out_handle:
         app.PDBFile.writeFile(topology, positions, out_handle, keepIds=True)
@@ -96,10 +106,7 @@ def refine_once(topology, positions, k1=2.5, k2=2.5):
     # Minimize the energy
     simulation.minimizeEnergy()
 
-    # Remove D-stereoisomers
-    simulation =  chirality_fixer(simulation)
-
-    return simulation.topology, simulation.context.getState(getPositions=True).getPositions()
+    return simulation
 
 
 def chirality_fixer(simulation):
@@ -127,7 +134,7 @@ def chirality_fixer(simulation):
     if len(d_stereoisomers) > 0:
         simulation.context.setPositions(positions)
 
-        # Minimize the energy with the hydrogens fixed
+        # Minimize the energy with the evil hydrogens fixed
         simulation.minimizeEnergy()
 
         # Minimize the energy letting the hydrogens move
