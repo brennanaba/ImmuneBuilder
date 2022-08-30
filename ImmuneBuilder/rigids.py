@@ -1,5 +1,5 @@
 import torch
-from ABodyBuilder2.constants import rigid_group_atom_positions2, chi2_centers, chi3_centers, chi4_centers, rel_pos, \
+from ImmuneBuilder.constants import rigid_group_atom_positions2, chi2_centers, chi3_centers, chi4_centers, rel_pos, \
     residue_atoms_mask
 
 class Vector:

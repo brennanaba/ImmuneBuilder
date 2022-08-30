@@ -1,13 +1,13 @@
-# ABodyBuilder2
-Predict antibody structures using deep learning
+# ImmuneBuilder
+Predict the structure of proteins of the immune system using deep learning
 
 ## Install
 
 To install download from github:
 
 ```bash
-$ git clone https://github.com/brennanaba/ABodyBuilder2.git
-$ pip install ABodyBuilder2/
+$ git clone https://github.com/brennanaba/ImmuneBuilder.git
+$ pip install ImmuneBuilder/
 ```
 
 This package requires PyTorch. If you do not already have PyTorch installed, you can do so following these <a href="https://pytorch.org/get-started/locally/">instructions</a>.
@@ -25,7 +25,7 @@ To predict an antibody structure you can do the following
 
 
 ```python
-from ABodyBuilder2 import ABodyBuilder2
+from ImmuneBuilder import ABodyBuilder2
 predictor = ABodyBuilder2()
 
 output_file = "my_antibody.pdb"

@@ -1,6 +1,6 @@
 import numpy as np
-from ABodyBuilder2.constants import res_to_num, atom_types, residue_atoms, restype_1to3
-from ABodyBuilder2.rigids import Rigid
+from ImmuneBuilder.constants import res_to_num, atom_types, residue_atoms, restype_1to3
+from ImmuneBuilder.rigids import Rigid
 
 def get_one_hot(targets, nb_classes=21):
     res = np.eye(nb_classes)[np.array(targets).reshape(-1)]

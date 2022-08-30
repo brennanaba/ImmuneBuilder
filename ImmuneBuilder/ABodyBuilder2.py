@@ -1,8 +1,8 @@
 import torch
 import os
-from ABodyBuilder2.models import StructureModule
-from ABodyBuilder2.util import get_encoding, to_pdb
-from ABodyBuilder2.refine import refine
+from ImmuneBuilder.models import StructureModule
+from ImmuneBuilder.util import get_encoding, to_pdb
+from ImmuneBuilder.refine import refine
 
 torch.set_default_tensor_type(torch.DoubleTensor)
 

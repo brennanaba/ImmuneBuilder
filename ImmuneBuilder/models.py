@@ -1,6 +1,6 @@
 import torch
 from einops import rearrange
-from ABodyBuilder2.rigids import Rigid, Rot, rigid_body_identity, vec_from_tensor, global_frames_from_bb_frame_and_torsion_angles, all_atoms_from_global_reference_frames
+from ImmuneBuilder.rigids import Rigid, Rot, rigid_body_identity, vec_from_tensor, global_frames_from_bb_frame_and_torsion_angles, all_atoms_from_global_reference_frames
 
 torch.set_default_tensor_type(torch.DoubleTensor)
 
