@@ -43,8 +43,11 @@ def refine(input_file, output_file, n=6):
         
         # If peptide bond lengths and torsions are okay, check and fix the chirality.
         if acceptable_bonds and trans_peptide_bonds:
-            simulation = chirality_fixer(simulation)
-            topology, positions = simulation.topology, simulation.context.getState(getPositions=True).getPositions()
+            try:
+                simulation = chirality_fixer(simulation)
+                topology, positions = simulation.topology, simulation.context.getState(getPositions=True).getPositions()
+            except OpenMMException as e:
+                continue
 
             # If it passes all the tests, we are done
             if bond_check(topology, positions) and cis_check(topology, positions) and stereo_check(topology, positions):

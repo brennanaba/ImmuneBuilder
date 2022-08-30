@@ -6,11 +6,11 @@ def get_one_hot(targets, nb_classes=21):
     res = np.eye(nb_classes)[np.array(targets).reshape(-1)]
     return res.reshape(list(targets.shape) + [nb_classes])
 
-def get_encoding(sequence_dict):
+def get_encoding(sequence_dict, chain_ids="HL"):
     
     encodings = []
 
-    for j,chain in enumerate("HL"):
+    for j,chain in enumerate(chain_ids):
         seq = sequence_dict[chain]
         one_hot_amino = get_one_hot(np.array([res_to_num(x) for x in seq]))
         one_hot_region = get_one_hot(j * np.ones(len(seq), dtype=int), 2)
