@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from ImmuneBuilder.constants import res_to_num, atom_types, residue_atoms, restype_1to3
 from ImmuneBuilder.rigids import Rigid
 
@@ -18,6 +19,20 @@ def get_encoding(sequence_dict, chain_ids="HL"):
         encodings.append(encoding)
 
     return np.concatenate(encodings, axis = 0)
+
+
+def find_alignment_transform(traces):
+    centers = traces.mean(-2, keepdim=True)
+    traces = traces - centers
+
+    p1, p2 = traces[0], traces[1:]
+
+    C = torch.einsum("i j k, j l -> i k l", p2, p1)
+    V, _, W = torch.linalg.svd(C)
+    U = torch.matmul(V, W)
+    U = torch.matmul(torch.stack([torch.ones(3),torch.ones(3),torch.linalg.det(U)]) * V,  W)
+
+    return torch.cat([torch.eye(3)[None], U]), centers
     
 
 def to_pdb(sequence_dict, all_atoms, chain_ids = "HL"):

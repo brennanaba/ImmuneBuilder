@@ -28,7 +28,7 @@ def refine(input_file, output_file, n=6):
             acceptable_bonds, trans_peptide_bonds = bond_check(topology, positions), cis_check(topology, positions)
         except OpenMMException as e:
             if (i == n-1) and ("positions" not in locals()):
-                print("OpenMM failed to refine {}".format(output_file))
+                print("OpenMM failed to refine {}".format(input_file))
                 raise e
             else:
                 continue
