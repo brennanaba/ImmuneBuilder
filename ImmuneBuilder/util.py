@@ -1,11 +1,22 @@
 import numpy as np
 import torch
 from ImmuneBuilder.constants import res_to_num, atom_types, residue_atoms, restype_1to3
-from ImmuneBuilder.rigids import Rigid
+import requests
+
+
+def download_file(url, filename):
+    with requests.get(url, stream=True) as r:
+        r.raise_for_status()
+        with open(filename, 'wb+') as f:
+            for chunk in r.iter_content(chunk_size=8192): 
+                f.write(chunk)
+    return filename
+
 
 def get_one_hot(targets, nb_classes=21):
     res = np.eye(nb_classes)[np.array(targets).reshape(-1)]
     return res.reshape(list(targets.shape) + [nb_classes])
+
 
 def get_encoding(sequence_dict, chain_ids="HL"):
     
