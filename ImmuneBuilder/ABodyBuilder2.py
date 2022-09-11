@@ -124,8 +124,5 @@ def command_line_interface():
     else:
         raise ValueError("Missing input sequences")
     
-    model = ABodyBuilder2()
-    ab = model.predict(seqs)
-
     output = args.output if args.output is not None else "ABodyBuilder2_output"
-    ab.save(output)
+    ABodyBuilder2().predict(seqs).save(output)
