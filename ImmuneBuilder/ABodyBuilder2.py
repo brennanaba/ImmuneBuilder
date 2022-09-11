@@ -33,27 +33,38 @@ class Antibody:
             self.ranking = [x.item() for x in self.error_estimates.mean(-1).argsort()]
         
 
-    def save_unrefined(self, filename, index=0):
+    def save_single_unrefined(self, filename, index=0):
         atoms = (self.atoms[index] - self.t[index]) @ self.R[index]
         unrefined = to_pdb(self.sequence_dict, atoms)
 
         with open(filename, "w+") as file:
             file.write(unrefined)
 
+    
+    def save_single_refined(self, filename, index=0):
+        try:
+            name, filetype = filename.split(".")
+        except ValueError:
+            name = "prediction"
+            filetype = "pdb"
 
-    def save(self, filename):
+        unrefined_filename = name + "_unrefined." + filetype
+        self.save_single_unrefined(unrefined_filename, index=index)
+        refine(unrefined_filename, filename)
+
+
+    def save(self, dirname, filename=None):
+        os.makedirs(dirname, exist_ok = True)
+        if filename is None:
+            filename = "final_model.pdb"
+
         for i in range(len(self.atoms)):
-            try:
-                name, filetype = filename.split(".")
-            except ValueError:
-                name = "prediction"
-                filetype = "pdb"
 
-            unrefined_filename = name + f"_rank{self.ranking.index(i)}_unrefined." + filetype
-            self.save_unrefined(unrefined_filename, index=i)
+            unrefined_filename = os.path.join(dirname,f"rank{self.ranking.index(i)}_unrefined.pdb")
+            self.save_single_unrefined(unrefined_filename, index=i)
 
-        np.save(name + "_error_estimates", self.error_estimates.mean(0).numpy())
-        refine(name + f"_rank{0}_unrefined." + filetype, filename)
+        np.save(os.path.join(dirname,"error_estimates"), self.error_estimates.mean(0).numpy())
+        refine(os.path.join(dirname,"rank0_unrefined.pdb"), os.path.join(dirname, filename))
 
 
 class ABodyBuilder2:
@@ -69,12 +80,12 @@ class ABodyBuilder2:
 
             try:
                 if not os.path.exists(weights_path):
-                    print(f"Attempting to download weights for {model_file}...")
+                    print(f"Downloading weights for {model_file}...")
                     download_file(model_urls[model_file], weights_path)
 
                 model.load_state_dict(torch.load(weights_path, map_location=torch.device(self.device)))
             except Exception:
-                print(f"{model_file} not downloaded or file corrupted.")
+                print(f"{model_file} not downloaded or corrupted.")
                 continue
 
             model.eval()
