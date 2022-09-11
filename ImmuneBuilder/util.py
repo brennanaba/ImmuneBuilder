@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from ImmuneBuilder.constants import res_to_num, atom_types, residue_atoms, restype_1to3
+from ImmuneBuilder.constants import res_to_num, atom_types, residue_atoms, restype_1to3, restypes
 import requests
 
 
@@ -83,3 +83,21 @@ def to_pdb(sequence_dict, all_atoms, chain_ids = "HL"):
                 atom_index += 1
 
     return "\n".join(pdb_lines)
+
+
+def sequence_dict_from_fasta(fasta_file):
+    out = {}
+
+    with open(fasta_file) as file:
+        txt = file.read().split()
+
+    for i in range(len(txt)-1):
+        if ">" in txt[i]:
+            chain_id = txt[i].split(">")[1]
+        else:
+            continue
+
+        if all(c in restypes for c in txt[i+1]):
+            out[chain_id] = txt[i+1]
+    
+    return out

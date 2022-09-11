@@ -1,7 +1,6 @@
 import pdbfixer
 import numpy as np
-from simtk.openmm import app, LangevinIntegrator, CustomExternalForce, CustomTorsionForce, HarmonicBondForce, OpenMMException
-from simtk import unit
+from openmm import app, LangevinIntegrator, CustomExternalForce, CustomTorsionForce, OpenMMException, unit
 
 ENERGY = unit.kilocalories_per_mole
 LENGTH = unit.angstroms

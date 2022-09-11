@@ -1,8 +1,9 @@
 import torch
 import numpy as np
 import os
+import argparse
 from ImmuneBuilder.models import StructureModule
-from ImmuneBuilder.util import get_encoding, to_pdb, find_alignment_transform, download_file
+from ImmuneBuilder.util import get_encoding, to_pdb, find_alignment_transform, download_file, sequence_dict_from_fasta
 from ImmuneBuilder.refine import refine
 
 torch.set_default_tensor_type(torch.DoubleTensor)
@@ -53,10 +54,8 @@ class Antibody:
         refine(unrefined_filename, filename)
 
 
-    def save(self, dirname, filename=None):
+    def save(self, dirname="ABodyBuilder2_output", filename="final_model.pdb"):
         os.makedirs(dirname, exist_ok = True)
-        if filename is None:
-            filename = "final_model.pdb"
 
         for i in range(len(self.atoms)):
 
@@ -104,3 +103,29 @@ class ABodyBuilder2:
                 outputs.append(pred)
 
         return Antibody(sequence_dict, outputs)
+
+
+def command_line_interface():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-H", "--heavy_sequence", help="Heavy chain amino acid sequence", default=None)
+    parser.add_argument("-L", "--light_sequence", help="Light chain amino acid sequence", default=None)
+    parser.add_argument("-f", "--fasta_file", help="Fasta file containing a heavy amd light chain named H and L", default=None)
+
+    parser.add_argument("-o", "--output", help="Path to where the output model should be saved. Defaults to the same "
+                                            "directory as input file.", default=None)
+
+    args = parser.parse_args()
+
+    if (args.heavy_sequence is not None) and (args.light_sequence is not None):
+        seqs = {"H":args.heavy_sequence, "L":args.light_sequence}
+    elif args.fasta_file is not None:
+        seqs = sequence_dict_from_fasta(args.fasta_file)
+    else:
+        raise ValueError("Missing input sequences")
+    
+    model = ABodyBuilder2()
+    ab = model.predict(seqs)
+
+    output = args.output if args.output is not None else "ABodyBuilder2_output"
+    ab.save(output)
