@@ -1,7 +1,6 @@
 import pdbfixer
 import numpy as np
-from simtk.openmm import app, LangevinIntegrator, CustomExternalForce, CustomTorsionForce, HarmonicBondForce, OpenMMException
-from simtk import unit
+from openmm import app, LangevinIntegrator, CustomExternalForce, CustomTorsionForce, OpenMMException, unit
 
 ENERGY = unit.kilocalories_per_mole
 LENGTH = unit.angstroms
@@ -126,13 +125,13 @@ def chirality_fixer(simulation):
 
         if np.dot(np.cross(vectors[0], vectors[1]), vectors[2]) < .0*LENGTH**3:
             # If it is a D-stereoisomer then flip its H atom
-            indices = [x.index for x in residue.atoms() if x.name in ["HA", "CA"]]
-            positions[indices[0]] = 2*positions[indices[1]] - positions[indices[0]]
+            indices = {x.name:x.index for x in residue.atoms() if x.name in ["HA", "CA"]}
+            positions[indices["HA"]] = 2*positions[indices["CA"]] - positions[indices["HA"]]
             
             # Fix the H atom in place
-            particle_mass = simulation.system.getParticleMass(indices[0])
-            simulation.system.setParticleMass(indices[0], 0.0)
-            d_stereoisomers.append((indices[0], particle_mass))
+            particle_mass = simulation.system.getParticleMass(indices["HA"])
+            simulation.system.setParticleMass(indices["HA"], 0.0)
+            d_stereoisomers.append((indices["HA"], particle_mass))
             
     if len(d_stereoisomers) > 0:
         simulation.context.setPositions(positions)
