@@ -1,0 +1,30 @@
+from anarci import validate_sequence, anarci, scheme_short_to_long
+
+def number_single_sequence(sequence, chain, scheme="imgt", allowed_species=['human','mouse']):
+    validate_sequence(sequence)
+
+    try:
+        scheme = scheme_short_to_long[scheme.lower()]
+    except KeyError:
+        raise NotImplementedError(f"Unimplemented numbering scheme: {scheme}")
+
+    assert len(sequence) > 70, f"Sequence too short to be an Ig domain. Please give whole sequence:\n{sequence}"
+
+    allow = [chain]
+    if chain == "L":
+        allow.append("K")
+
+    numbered, _, _ = anarci([("sequence", sequence)], scheme=scheme, output=False, allow=set(allow), allowed_species=allowed_species)
+
+    assert numbered[0], f"Sequence provided as an {chain} chain is not recognised as an {chain} chain."
+
+    output = [x for x in numbered[0][0][0] if x[1] != "-"]
+    numbers = [x[0][0] for x in output]
+
+    assert (max(numbers) > 110) and (min(numbers) < 8), f"Sequence missing too many residues to model correctly. Please give whole sequence:\n{sequence}"
+
+    return output
+
+
+def number_sequences(seqs, scheme="imgt", allowed_species=['human','mouse']):
+    return {chain: number_single_sequence(seqs[chain], chain, scheme=scheme, allowed_species=allowed_species) for chain in seqs}
