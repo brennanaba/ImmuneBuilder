@@ -16,10 +16,10 @@ embed_dim = {
 }
 
 model_urls = {
-    "antibody_model_1": "https://dl.dropbox.com/s/b06njl46vbtpg42/antibody_model_1?dl=1",
-    "antibody_model_2": "https://dl.dropbox.com/s/hez39qf0kyncscw/antibody_model_2?dl=1",
-    "antibody_model_3": "https://dl.dropbox.com/s/tsk4zw5xsj0a7pk/antibody_model_3?dl=1",
-    "antibody_model_4": "https://dl.dropbox.com/s/quww8407ae7f076/antibody_model_4?dl=1",
+    "antibody_model_1": "https://zenodo.org/record/7258553/files/antibody_model_1?download=1",
+    "antibody_model_2": "https://zenodo.org/record/7258553/files/antibody_model_2?download=1",
+    "antibody_model_3": "https://zenodo.org/record/7258553/files/antibody_model_3?download=1",
+    "antibody_model_4": "https://zenodo.org/record/7258553/files/antibody_model_4?download=1",
 }
 
 header = "REMARK  ANTIBODY STRUCTURE MODELLED USING ABODYBUILDER2                         \n"

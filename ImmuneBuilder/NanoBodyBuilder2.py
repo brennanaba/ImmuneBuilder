@@ -16,10 +16,10 @@ embed_dim = {
 }
 
 model_urls = {
-    "nanobody_model_1": "https://dl.dropbox.com/s/o0ccq98eyjstkyh/nanobody_model_1?dl=1",
-    "nanobody_model_2": "https://dl.dropbox.com/s/p6q305j58b026pa/nanobody_model_2?dl=1",
-    "nanobody_model_3": "https://dl.dropbox.com/s/oxk1fhtu0zp0qws/nanobody_model_3?dl=1",
-    "nanobody_model_4": "https://dl.dropbox.com/s/lxnkhaufc8euf90/nanobody_model_4?dl=1",
+    "nanobody_model_1": "https://zenodo.org/record/7258553/files/nanobody_model_1?download=1",
+    "nanobody_model_2": "https://zenodo.org/record/7258553/files/nanobody_model_2?download=1",
+    "nanobody_model_3": "https://zenodo.org/record/7258553/files/nanobody_model_3?download=1",
+    "nanobody_model_4": "https://zenodo.org/record/7258553/files/nanobody_model_4?download=1",
 }
 
 header = "REMARK  NANOBODY STRUCTURE MODELLED USING NANOBODYBUILDER2                      \n"

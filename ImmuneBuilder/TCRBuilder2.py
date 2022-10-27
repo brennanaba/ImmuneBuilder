@@ -16,10 +16,10 @@ embed_dim = {
 }
 
 model_urls = {
-    "tcr_model_1": "https://dl.dropbox.com/s/01tj2r269puiri9/tcr_model_1?dl=1",
-    "tcr_model_2": "https://dl.dropbox.com/s/nr10ybq0w6u7qht/tcr_model_2?dl=1",
-    "tcr_model_3": "https://dl.dropbox.com/s/wzhivmtibtn0sp0/tcr_model_3?dl=1",
-    "tcr_model_4": "https://dl.dropbox.com/s/evd4xxx4zw88rb8/tcr_model_4?dl=1",
+    "tcr_model_1": "https://zenodo.org/record/7258553/files/tcr_model_1?download=1",
+    "tcr_model_2": "https://zenodo.org/record/7258553/files/tcr_model_2?download=1",
+    "tcr_model_3": "https://zenodo.org/record/7258553/files/tcr_model_3?download=1",
+    "tcr_model_4": "https://zenodo.org/record/7258553/files/tcr_model_4?download=1",
 }
 
 header = "REMARK  TCR STRUCTURE MODELLED USING TCRBUILDER2                                \n"
