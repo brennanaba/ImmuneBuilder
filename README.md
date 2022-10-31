@@ -2,7 +2,7 @@
 
 <div align="center">    
  
-# ImmuneBuilder: Deep-Learning models fo predicting the structures of immune proteins 
+# ImmuneBuilder: Deep-Learning models for predicting the structures of immune proteins 
 
 </div>
 
