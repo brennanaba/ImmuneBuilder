@@ -30,7 +30,7 @@ OpenMM and pdbfixer can be installed via conda using:
 $ conda install -c conda-forge openmm pdbfixer
 ```
 
-It also uses anarci for trinmming and numbering sequences. This can be obtained from <a href="https://github.com/oxpig/ANARCI/tree/master">here</a>, or installed via conda using:
+It also uses anarci for trinmming and numbering sequences. We recommend installing ANARCI from <a href="https://github.com/oxpig/ANARCI/tree/master">here</a>, but it can also be installed using (maintained by a third party):
 
 ```bash
 $ conda install -c bioconda anarci
