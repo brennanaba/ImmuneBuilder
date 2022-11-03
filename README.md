@@ -39,6 +39,8 @@ $ conda install -c bioconda anarci
 
 ## Usage
 
+To test the method out without installing it you can try this <a href="https://colab.research.google.com/github/brennanaba/ImmuneBuilder/blob/main/notebook/ImmuneBuilder.ipynb">Google Colab</a>
+
 ### Antibody structure prediction
 
 To predict an antibody structure using the python API you can do the following.
