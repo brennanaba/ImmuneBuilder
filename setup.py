@@ -24,5 +24,6 @@ setup(
         'scipy>=1.6',
         'einops>=0.3',
         'torch>=1.8',
+        'requests'
     ],
 )
