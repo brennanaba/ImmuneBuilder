@@ -96,7 +96,10 @@ class TCRBuilder2:
             weights_path = os.path.join(current_directory, "trained_model", model_file)
 
             try:
-                if not os.path.exists(weights_path):
+                with open(weights_path, "rb") as f:
+                    filestart = str(f.readline())
+
+                if filestart == "b'EMPTY'":
                     print(f"Downloading weights for {model_file}...", flush=True)
                     download_file(model_urls[model_file], weights_path)
 
