@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='ImmuneBuilder',
-    version='0.0.2',
+    version='0.0.3',
     description='Set of functions to predict the structure of immune receptor proteins',
     license='BSD 3-clause license',
     maintainer='Brennan Abanades',
