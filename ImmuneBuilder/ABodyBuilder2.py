@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import os
+import sys
 import argparse
 from ImmuneBuilder.models import StructureModule
 from ImmuneBuilder.util import get_encoding, to_pdb, find_alignment_transform, download_file, sequence_dict_from_fasta, add_errors_as_bfactors
@@ -162,7 +163,13 @@ def command_line_interface():
         print(f"Sequences loaded succesfully.\nHeavy and light chains are:", flush=True)
         [print(f"{chain}: {seqs[chain]}", flush=True) for chain in "HL"]
         print("Running sequences through deep learning model...", flush=True)
-    antibody = ABodyBuilder2().predict(seqs)
+
+    try:
+        antibody = ABodyBuilder2().predict(seqs)
+    except AssertionError as e:
+        print(e, flush=True)
+        sys.exit(1)
+
     if args.verbose:
         print("Antibody modelled succesfully, starting refinement.", flush=True)
 
