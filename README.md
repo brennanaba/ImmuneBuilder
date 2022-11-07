@@ -13,13 +13,17 @@
 
 Immune receptor proteins play a key role in the immune system and have shown great promise as biotherapeutics. The structure of these proteins is critical for understanding what antigen they bind. Here, we present ImmuneBuilder, a set of deep learning models trained to accurately predict the structure of antibodies (ABodyBuilder2), nanobodies (NanoBodyBuilder2) and T-Cell receptors (TCRBuilder2). We show that ImmuneBuilder generates structures with state of the art accuracy while being much faster than AlphaFold2. For example, on a benchmark of 34 recently solved antibodies, ABodyBuilder2 predicts CDR-H3 loops with an RMSD of 2.81Å, a 0.09Å improvement over AlphaFold-Multimer, while being over a hundred times faster. Similar results are also achieved for nanobodies (NanoBodyBuilder2 predicts CDR-H3 loops with an average RMSD of 2.89Å, a 0.55Å improvement over AlphaFold2) and TCRs. By predicting an ensemble of structures, ImmuneBuilder also gives an error estimate for every residue in its final prediction.
 
+
+## Colab
+
+To test the method out without installing it you can try this <a href="https://colab.research.google.com/github/brennanaba/ImmuneBuilder/blob/main/notebook/ImmuneBuilder.ipynb">Google Colab</a>
+
 ## Install
 
-To install, download from github:
+You can install ImmuneBuilder via PyPI by doing:
 
 ```bash
-$ git clone https://github.com/brennanaba/ImmuneBuilder.git
-$ pip install ImmuneBuilder/
+$ pip install ImmuneBuilder
 ```
 
 This package requires PyTorch. If you do not already have PyTorch installed, you can do so following these <a href="https://pytorch.org/get-started/locally/">instructions</a>.
@@ -38,8 +42,6 @@ $ conda install -c bioconda anarci
 ```
 
 ## Usage
-
-To test the method out without installing it you can try this <a href="https://colab.research.google.com/github/brennanaba/ImmuneBuilder/blob/main/notebook/ImmuneBuilder.ipynb">Google Colab</a>
 
 ### Antibody structure prediction
 
@@ -118,4 +120,18 @@ And it can also be used from the command line:
 TCRBuilder2 --fasta_file my_tcr.fasta -v
 ```
 
+## Citing this work
+
+The code and data in this package is based on the following paper <a href="https://www.biorxiv.org/content/10.1101/2022.11.04.514231v1">ImmuneBuilder</a>. If you use it, please cite:
+
+```tex
+@article {Abanades2022.11.04.514231,
+	title = {ImmuneBuilder: Deep-Learning models for predicting the structures of immune proteins.},
+	author = {Abanades, Brennan and Wong, Wing Ki and Boyles, Fergus and Georges, Guy and Bujotzek, Alexander and Deane, Charlotte Mary},
+ journal = {bioRxiv},
+	year = {2022},
+	doi = {10.1101/2022.11.04.514231},
+	publisher = {Cold Spring Harbor Laboratory}
+}
+```
 
