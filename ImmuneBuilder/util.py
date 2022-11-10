@@ -3,6 +3,7 @@ from ImmuneBuilder.constants import res_to_num, atom_types, residue_atoms, resty
 import numpy as np
 import torch
 import requests
+import os
 
 
 def download_file(url, filename):
@@ -124,3 +125,11 @@ def add_errors_as_bfactors(filename, errors, new_txt=[]):
 
     with open(filename, "w+") as file:
         file.writelines(new_txt)
+
+
+def are_weights_ready(weights_path):
+    if not os.path.exists(weights_path):
+        return False
+    with open(weights_path, "rb") as f:
+        filestart = str(f.readline())
+    return filestart != "b'EMPTY'"
