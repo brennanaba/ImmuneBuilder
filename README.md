@@ -120,6 +120,23 @@ And it can also be used from the command line:
 TCRBuilder2 --fasta_file my_tcr.fasta -v
 ```
 
+### Fasta formatting
+
+If you wish to run the model on a sequence from a fasta file it must be formatted as follows:
+
+```
+>H
+YOURHEAVYCHAINSEQUENCE
+>L
+YOURLIGHCHAINSEQUENCE
+```
+
+If you are running it on TCRs the chain labels should be A for the alpha chain and B for the beta chain. On nanobodies the fasta file should only contain a heavy chain labelled H.
+
+### Issues and Pull requests
+
+Please submit issues and pull requests on this <a href="https://github.com/brennanaba/ImmuneBuilder">repo</a>.
+
 ## Citing this work
 
 The code and data in this package is based on the following paper <a href="https://www.biorxiv.org/content/10.1101/2022.11.04.514231v1">ImmuneBuilder</a>. If you use it, please cite:
