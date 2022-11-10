@@ -4,7 +4,7 @@ import os
 import argparse
 import sys
 from ImmuneBuilder.models import StructureModule
-from ImmuneBuilder.util import get_encoding, to_pdb, find_alignment_transform, download_file, sequence_dict_from_fasta, add_errors_as_bfactors
+from ImmuneBuilder.util import get_encoding, to_pdb, find_alignment_transform, download_file, sequence_dict_from_fasta, add_errors_as_bfactors, are_weights_ready
 from ImmuneBuilder.refine import refine
 from ImmuneBuilder.sequence_checks import number_sequences
 
@@ -86,21 +86,19 @@ class Nanobody:
 
 
 class NanoBodyBuilder2:
-    def __init__(self, model_ids = [1,2,3,4]):
+    def __init__(self, model_ids = [1,2,3,4], weights_dir=None):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        current_directory = os.path.dirname(os.path.realpath(__file__))
+        if weights_dir is None:
+            weights_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "trained_model")
 
         self.models = {}
         for id in model_ids:
             model_file = f"nanobody_model_{id}"
             model = StructureModule(rel_pos_dim=64, embed_dim=embed_dim[model_file]).to(self.device)
-            weights_path = os.path.join(current_directory, "trained_model", model_file)
+            weights_path = os.path.join(weights_dir, model_file)
 
             try:
-                with open(weights_path, "rb") as f:
-                    filestart = str(f.readline())
-
-                if filestart == "b'EMPTY'":
+                if not are_weights_ready(weights_path):
                     print(f"Downloading weights for {model_file}...", flush=True)
                     download_file(model_urls[model_file], weights_path)
 
