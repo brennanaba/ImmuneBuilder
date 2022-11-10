@@ -103,11 +103,12 @@ def sequence_dict_from_fasta(fasta_file):
     return out
 
 
-def add_errors_as_bfactors(filename, errors, new_txt=[]):
+def add_errors_as_bfactors(filename, errors, header=[]):
 
     with open(filename) as file:
         txt = file.readlines()
 
+    new_txt = header.copy()
     residue_index = -1
     position = "  "
 

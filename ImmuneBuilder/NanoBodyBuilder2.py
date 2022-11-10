@@ -62,7 +62,7 @@ class Nanobody:
         np.save(os.path.join(dirname,"error_estimates"), self.error_estimates.mean(0).cpu().numpy())
         final_filename = os.path.join(dirname, filename)
         refine(os.path.join(dirname,"rank0_unrefined.pdb"), final_filename)
-        add_errors_as_bfactors(final_filename, self.error_estimates.mean(0).sqrt().cpu().numpy(), new_txt=[header])
+        add_errors_as_bfactors(final_filename, self.error_estimates.mean(0).sqrt().cpu().numpy(), header=[header])
 
 
     def save(self, filename=None):
@@ -82,7 +82,7 @@ class Nanobody:
 
         if not success:
             print(f"FAILED TO REFINE {filename}.\nSaving anyways.", flush=True)
-        add_errors_as_bfactors(filename, self.error_estimates.mean(0).sqrt().cpu().numpy(), new_txt=[header])  
+        add_errors_as_bfactors(filename, self.error_estimates.mean(0).sqrt().cpu().numpy(), header=[header])  
 
 
 class NanoBodyBuilder2:

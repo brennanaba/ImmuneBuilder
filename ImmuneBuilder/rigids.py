@@ -157,8 +157,10 @@ class Rigid:
     def __matmul__(self, other):
         if isinstance(other, Vector):
             return self.rot @ other + self.origin
-        if isinstance(other, Rigid):
+        elif isinstance(other, Rigid):
             return Rigid(self.rot @ other.origin + self.origin, self.rot @ other.rot)
+        else:
+            raise TypeError(f"can't multiply rigid by object of type {type(other)}")
 
     def inv(self):
         inv_rot = self.rot.inv()
