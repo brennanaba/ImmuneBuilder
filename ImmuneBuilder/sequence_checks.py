@@ -14,14 +14,20 @@ def number_single_sequence(sequence, chain, scheme="imgt", allowed_species=['hum
     if chain == "L":
         allow.append("K")
 
-    numbered, _, _ = anarci([("sequence", sequence)], scheme=scheme, output=False, allow=set(allow), allowed_species=allowed_species)
+    # Use imgt scheme for numbering sanity checks
+    numbered, _, _ = anarci([("sequence", sequence)], scheme='imgt', output=False, allow=set(allow), allowed_species=allowed_species)
 
     assert numbered[0], f"Sequence provided as an {chain} chain is not recognised as an {chain} chain."
 
     output = [x for x in numbered[0][0][0] if x[1] != "-"]
     numbers = [x[0][0] for x in output]
 
+    # Check for missing residues assuming imgt numbering
     assert (max(numbers) > 110) and (min(numbers) < 8), f"Sequence missing too many residues to model correctly. Please give whole sequence:\n{sequence}"
+
+    # Renumber once sanity checks done
+    if scheme != 'imgt':
+        numbered, _, _ = anarci([("sequence", sequence)], scheme=scheme, output=False, allow=set(allow), allowed_species=allowed_species)
 
     return output
 
