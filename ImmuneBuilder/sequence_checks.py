@@ -19,6 +19,7 @@ def number_single_sequence(sequence, chain, scheme="imgt", allowed_species=['hum
 
     assert numbered[0], f"Sequence provided as an {chain} chain is not recognised as an {chain} chain."
 
+    output = [x for x in numbered[0][0][0] if x[1] != "-"]
     numbers = [x[0][0] for x in output]
 
     # Check for missing residues assuming imgt numbering
