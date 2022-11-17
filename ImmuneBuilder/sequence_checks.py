@@ -19,7 +19,6 @@ def number_single_sequence(sequence, chain, scheme="imgt", allowed_species=['hum
 
     assert numbered[0], f"Sequence provided as an {chain} chain is not recognised as an {chain} chain."
 
-    output = [x for x in numbered[0][0][0] if x[1] != "-"]
     numbers = [x[0][0] for x in output]
 
     # Check for missing residues assuming imgt numbering
@@ -28,6 +27,7 @@ def number_single_sequence(sequence, chain, scheme="imgt", allowed_species=['hum
     # Renumber once sanity checks done
     if scheme != 'imgt':
         numbered, _, _ = anarci([("sequence", sequence)], scheme=scheme, output=False, allow=set(allow), allowed_species=allowed_species)
+    output = [x for x in numbered[0][0][0] if x[1] != "-"]
 
     return output
 
