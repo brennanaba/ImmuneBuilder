@@ -2,8 +2,6 @@ import torch
 from einops import rearrange
 from ImmuneBuilder.rigids import Rigid, Rot, rigid_body_identity, vec_from_tensor, global_frames_from_bb_frame_and_torsion_angles, all_atoms_from_global_reference_frames
 
-torch.set_default_tensor_type(torch.DoubleTensor)
-
 class InvariantPointAttention(torch.nn.Module):
     def __init__(self, node_dim, edge_dim, heads=12, head_dim=16, n_query_points=4, n_value_points=8, **kwargs):
         super().__init__()
