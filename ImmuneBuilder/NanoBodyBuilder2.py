@@ -8,7 +8,6 @@ from ImmuneBuilder.util import get_encoding, to_pdb, find_alignment_transform, d
 from ImmuneBuilder.refine import refine
 from ImmuneBuilder.sequence_checks import number_sequences
 
-torch.set_default_tensor_type(torch.DoubleTensor)
 embed_dim = {
     "nanobody_model_1":128,
     "nanobody_model_2":256,
@@ -86,8 +85,9 @@ class Nanobody:
 
 
 class NanoBodyBuilder2:
-    def __init__(self, model_ids = [1,2,3,4], weights_dir=None):
+    def __init__(self, model_ids = [1,2,3,4], weights_dir=None, numbering_scheme='imgt'):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.scheme = numbering_scheme
         if weights_dir is None:
             weights_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "trained_model")
 
@@ -108,17 +108,18 @@ class NanoBodyBuilder2:
                 raise e
 
             model.eval()
+            model.to(torch.get_default_dtype())
 
             self.models[model_file] = model
 
 
     def predict(self, sequence_dict):
-        numbered_sequences = number_sequences(sequence_dict, allowed_species=None)
+        numbered_sequences = number_sequences(sequence_dict, allowed_species=None, scheme = self.scheme)
         sequence_dict = {chain: "".join([x[1] for x in numbered_sequences[chain]]) for chain in numbered_sequences}
 
         with torch.no_grad():
             sequence_dict["L"] = ""
-            encoding = torch.tensor(get_encoding(sequence_dict, "H"), device = self.device)
+            encoding = torch.tensor(get_encoding(sequence_dict, "H"), device = self.device, dtype=torch.get_default_dtype())
             full_seq = sequence_dict["H"]
             outputs = []
 
@@ -161,9 +162,9 @@ def command_line_interface():
 
     if args.verbose:
         print(description, flush=True)
-        print(f"Sequences loaded succesfully.\nHeavy and light chains are:", flush=True)
+        print(f"Sequence loaded succesfully.\nHeavy chain is:", flush=True)
         print("H: " + seqs["H"], flush=True)
-        print("Running sequences through deep learning model...", flush=True)
+        print("Running sequence through deep learning model...", flush=True)
 
     try:
         antibody = NanoBodyBuilder2().predict(seqs)

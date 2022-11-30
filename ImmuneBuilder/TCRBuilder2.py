@@ -8,7 +8,6 @@ from ImmuneBuilder.util import get_encoding, to_pdb, find_alignment_transform, d
 from ImmuneBuilder.refine import refine
 from ImmuneBuilder.sequence_checks import number_sequences
 
-torch.set_default_tensor_type(torch.DoubleTensor)
 embed_dim = {
     "tcr_model_1":128,
     "tcr_model_2":128,
@@ -86,8 +85,9 @@ class TCR:
 
 
 class TCRBuilder2:
-    def __init__(self, model_ids = [1,2,3,4], weights_dir=None):
+    def __init__(self, model_ids = [1,2,3,4], weights_dir=None, numbering_scheme='imgt'):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.scheme = numbering_scheme
         if weights_dir is None:
             weights_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "trained_model")
 
@@ -108,17 +108,18 @@ class TCRBuilder2:
                 raise e
 
             model.eval()
+            model.to(torch.get_default_dtype())
 
             self.models[model_file] = model
 
 
     def predict(self, sequence_dict):
-        numbered_sequences = number_sequences(sequence_dict)
+        numbered_sequences = number_sequences(sequence_dict, scheme=self.scheme)
         sequence_dict = {chain: "".join([x[1] for x in numbered_sequences[chain]]) for chain in numbered_sequences}
 
         with torch.no_grad():
             sequence_dict = {"H":sequence_dict["B"], "L":sequence_dict["A"]} 
-            encoding = torch.tensor(get_encoding(sequence_dict), device = self.device)
+            encoding = torch.tensor(get_encoding(sequence_dict), device = self.device, dtype=torch.get_default_dtype())
             full_seq = sequence_dict["H"] + sequence_dict["L"]
             outputs = []
 
