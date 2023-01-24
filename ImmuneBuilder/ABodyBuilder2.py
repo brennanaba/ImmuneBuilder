@@ -148,7 +148,7 @@ def command_line_interface():
     parser.add_argument("-o", "--output", help="Path to where the output model should be saved. Defaults to the same directory as input file.", default=None)
     parser.add_argument("--to_directory", help="Save all unrefined models and the top ranked refined model to a directory. " 
     "If this flag is set the output argument will be assumed to be a directory", default=False, action="store_true")
-    parser.add_argument("-n", "--numbering_scheme", help="The numbering scheme used for output antibody structures.  Options are" + ",".join(schemes) + " i, k, c, m, w"
+    parser.add_argument("-n", "--numbering_scheme", help="The numbering scheme used for output antibody structures. i, k, c, m, w"
                                                          " and a are shorthand for IMGT, Kabat, Chothia, Martin (Extended Chothia), Wolfguy and Aho respectively."
                                                          " Default is IMGT", default='imgt', choices=schemes)
     parser.add_argument("-v", "--verbose", help="Verbose output", default=False, action="store_true")
