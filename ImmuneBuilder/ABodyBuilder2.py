@@ -150,7 +150,7 @@ def command_line_interface():
     "If this flag is set the output argument will be assumed to be a directory", default=False, action="store_true")
     parser.add_argument("-n", "--numbering_scheme", help="The numbering scheme used for output antibody structures.  Options are" + ",".join(schemes) + " i, k, c, m, w"
                                                          " and a are shorthand for IMGT, Kabat, Chothia, Martin (Extended Chothia), Wolfguy and Aho respectively."
-                                                         " Default is IMGT", default='imgt', options=schemes)
+                                                         " Default is IMGT", default='imgt', choices=schemes)
     parser.add_argument("-v", "--verbose", help="Verbose output", default=False, action="store_true")
 
     args = parser.parse_args()
