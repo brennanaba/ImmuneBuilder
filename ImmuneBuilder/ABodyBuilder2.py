@@ -138,7 +138,7 @@ def command_line_interface():
         Supervisor: Charlotte Deane                           || 
     """
 
-    schemes = ('kabat','aho','wolfguy','imgt','a','c','chothia','i','k','m','w','martin')
+    schemes = ('imgt','chothia','kabat','aho','wolfguy','martin')
     parser = argparse.ArgumentParser(prog="ABodyBuilder2", description=description, formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument("-H", "--heavy_sequence", help="Heavy chain amino acid sequence", default=None)
@@ -148,9 +148,7 @@ def command_line_interface():
     parser.add_argument("-o", "--output", help="Path to where the output model should be saved. Defaults to the same directory as input file.", default=None)
     parser.add_argument("--to_directory", help="Save all unrefined models and the top ranked refined model to a directory. " 
     "If this flag is set the output argument will be assumed to be a directory", default=False, action="store_true")
-    parser.add_argument("-n", "--numbering_scheme", help="The numbering scheme used for output antibody structures. i, k, c, m, w"
-                                                         " and a are shorthand for IMGT, Kabat, Chothia, Martin (Extended Chothia), Wolfguy and Aho respectively."
-                                                         " Default is IMGT", default='imgt', choices=schemes)
+    parser.add_argument("-n", "--numbering_scheme", help="The scheme used to number output antibody structures. Available numbering schemes are: imgt, chothia, kabat, aho, wolfguy and martin. Default is imgt.", default='imgt')
     parser.add_argument("-v", "--verbose", help="Verbose output", default=False, action="store_true")
 
     args = parser.parse_args()

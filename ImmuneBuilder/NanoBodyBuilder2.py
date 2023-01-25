@@ -149,6 +149,8 @@ def command_line_interface():
     parser.add_argument("-o", "--output", help="Path to where the output model should be saved. Defaults to the same directory as input file.", default=None)
     parser.add_argument("--to_directory", help="Save all unrefined models and the top ranked refined model to a directory. " 
     "If this flag is set the output argument will be assumed to be a directory", default=False, action="store_true")
+    parser.add_argument("-n", "--numbering_scheme", help="The scheme used to number output nanobody structures. Available numbering schemes are: imgt, chothia, kabat, aho, wolfguy and martin. Default is imgt.", default='imgt')
+
     parser.add_argument("-v", "--verbose", help="Verbose output", default=False, action="store_true")
 
     args = parser.parse_args()
@@ -167,7 +169,7 @@ def command_line_interface():
         print("Running sequence through deep learning model...", flush=True)
 
     try:
-        antibody = NanoBodyBuilder2().predict(seqs)
+        antibody = NanoBodyBuilder2(numbering_scheme=args.numbering_scheme).predict(seqs)
     except AssertionError as e:
         print(e, flush=True)
         sys.exit(1)
