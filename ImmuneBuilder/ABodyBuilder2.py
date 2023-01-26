@@ -137,8 +137,6 @@ def command_line_interface():
         Author: Brennan Abanades Kenyon                       ||
         Supervisor: Charlotte Deane                           || 
     """
-
-    schemes = ('imgt','chothia','kabat','aho','wolfguy','martin')
     parser = argparse.ArgumentParser(prog="ABodyBuilder2", description=description, formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument("-H", "--heavy_sequence", help="Heavy chain amino acid sequence", default=None)
