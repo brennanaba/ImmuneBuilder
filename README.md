@@ -133,9 +133,14 @@ YOURLIGHCHAINSEQUENCE
 
 If you are running it on TCRs the chain labels should be A for the alpha chain and B for the beta chain. On nanobodies the fasta file should only contain a heavy chain labelled H.
 
-### Issues and Pull requests
+## Issues and Pull requests
 
 Please submit issues and pull requests on this <a href="https://github.com/brennanaba/ImmuneBuilder">repo</a>.
+
+### Known issues
+
+- Installing OpenMM from conda will automatically download the latest version of cudatoolkit which may not be compatible with your device. For more information on this please checkout the following <a href="https://github.com/brennanaba/ImmuneBuilder/issues/13">issue</a>.
+
 
 ## Citing this work
 
