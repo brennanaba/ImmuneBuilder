@@ -114,7 +114,7 @@ def add_errors_as_bfactors(filename, errors, header=[]):
 
     for line in txt:
         if line[:4] == "ATOM":
-            current_res = line[22:26]
+            current_res = line[22:27]
             if current_res != position:
                 position = current_res
                 residue_index += 1
