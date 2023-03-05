@@ -34,4 +34,6 @@ def number_single_sequence(sequence, chain, scheme="imgt", allowed_species=['hum
 
 
 def number_sequences(seqs, scheme="imgt", allowed_species=['human','mouse']):
+    if scheme == "raw":
+        return {chain: [((i+1, ''), aa) for i, aa in enumerate(seqs[chain])] for chain in seqs}
     return {chain: number_single_sequence(seqs[chain], chain, scheme=scheme, allowed_species=allowed_species) for chain in seqs}
