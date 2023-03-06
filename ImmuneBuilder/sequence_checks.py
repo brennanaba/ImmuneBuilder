@@ -26,7 +26,9 @@ def number_single_sequence(sequence, chain, scheme="imgt", allowed_species=['hum
     assert (max(numbers) > 120) and (min(numbers) < 8), f"Sequence missing too many residues to model correctly. Please give whole sequence:\n{sequence}"
 
     # Renumber once sanity checks done
-    if scheme != 'imgt':
+    if scheme == "raw":
+        return [((i+1, ' '), aa) for i, aa in enumerate(sequence)]
+    elif scheme != 'imgt':
         numbered, _, _ = anarci([("sequence", sequence)], scheme=scheme, output=False, allow=set(allow), allowed_species=allowed_species)
     output = [x for x in numbered[0][0][0] if x[1] != "-"]
 
@@ -34,6 +36,4 @@ def number_single_sequence(sequence, chain, scheme="imgt", allowed_species=['hum
 
 
 def number_sequences(seqs, scheme="imgt", allowed_species=['human','mouse']):
-    if scheme == "raw":
-        return {chain: [((i+1, ' '), aa) for i, aa in enumerate(seqs[chain])] for chain in seqs}
     return {chain: number_single_sequence(seqs[chain], chain, scheme=scheme, allowed_species=allowed_species) for chain in seqs}
