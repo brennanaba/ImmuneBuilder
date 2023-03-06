@@ -1,4 +1,5 @@
 import pdbfixer
+import os
 import numpy as np
 from openmm import app, LangevinIntegrator, CustomExternalForce, CustomTorsionForce, OpenMMException, unit
 from scipy import spatial
@@ -20,6 +21,9 @@ radii_sums = dict(
 # Clash_cutoff-based radii values
 cutoffs = dict(
     [(i + j, CLASH_CUTOFF * (radii_sums[i + j])) for i in list(atom_radii.keys()) for j in list(atom_radii.keys())])
+
+# Using amber14 recommended protein force field
+forcefield = app.ForceField("amber14/protein.ff14SB.xml")
 
 
 def refine(input_file, output_file, tries=3, n=6):
@@ -68,8 +72,8 @@ def refine_once(input_file, output_file, n=6):
         else:
             k2 = -1
         
-        # If peptide bond lengths and torsions are okay, check and fix the chirality.
         if acceptable_bonds and trans_peptide_bonds:
+            # If peptide bond lengths and torsions are okay, check and fix the chirality.
             try:
                 simulation = chirality_fixer(simulation)
                 topology, positions = simulation.topology, simulation.context.getState(getPositions=True).getPositions()
@@ -77,8 +81,22 @@ def refine_once(input_file, output_file, n=6):
                 topology, positions = fixer.topology, fixer.positions
                 continue
 
+            # If all other checks pass, check and fix strained sidechain bonds:
+            try:
+                strained_bonds = strained_sidechain_bonds_check(topology, positions)
+                if len(strained_bonds) > 0:
+                    needs_recheck = True
+                    topology, positions = strained_sidechain_bonds_fixer(strained_bonds, topology, positions)
+                else:
+                    needs_recheck = False
+            except OpenMMException as e:
+                topology, positions = fixer.topology, fixer.positions
+                continue
+
             # If it passes all the tests, we are done
             tests = bond_check(topology, positions) and cis_check(topology, positions)
+            if needs_recheck:
+                tests = tests and strained_sidechain_bonds_check(topology, positions)
             if tests and stereo_check(topology, positions) and clash_check(topology, positions):
                 success = True
                 break
@@ -90,10 +108,6 @@ def refine_once(input_file, output_file, n=6):
 
 
 def minimize_energy(topology, positions, k1=2.5, k2=2.5):
-
-    # Using amber14 recommended protein force field
-    forcefield = app.ForceField("amber14/protein.ff14SB.xml")
-
     # Fill in the gaps with OpenMM Modeller
     modeller = app.Modeller(topology, positions)
     modeller.addHydrogens(forcefield)
@@ -255,3 +269,72 @@ def clash_check(topology, positions):
         elif atom_distance < (cutoffs[atom_i.element.symbol + atom_j.element.symbol]):
             return False
     return True
+
+
+def strained_sidechain_bonds_check(topology, positions):
+    atoms = list(topology.atoms())
+    pos = np.array(positions.value_in_unit(LENGTH))
+    
+    system = forcefield.createSystem(topology)
+    bonds = [x for x in system.getForces() if type(x).__name__ == "HarmonicBondForce"][0]
+    
+    # Initialise arrays for bond details
+    n_bonds = bonds.getNumBonds()
+    i = np.empty(n_bonds, dtype=int)
+    j = np.empty(n_bonds, dtype=int)
+    k = np.empty(n_bonds)
+    x0 = np.empty(n_bonds)
+    
+    # Extract bond details to arrays
+    for n in range(n_bonds):
+        i[n],j[n],_x0,_k = bonds.getBondParameters(n)
+        k[n] = _k.value_in_unit(ENERGY/LENGTH**2)
+        x0[n] = _x0.value_in_unit(LENGTH)
+        
+    # Check if there are any abnormally strained bond
+    distance = np.linalg.norm(pos[i] - pos[j], axis=-1)
+    check = k*(distance - x0)**2 > 100
+    
+    # Return residues with strained bonds if any
+    return [atoms[x].residue for x in i[check]]
+
+
+def strained_sidechain_bonds_fixer(strained_residues, topology, positions):
+    # Delete all atoms except the main chain for badly refined residues.
+    bb_atoms = ["N","CA","C"]
+    bad_side_chains = sum([[atom for atom in residue.atoms() if atom.name not in bb_atoms] for residue in strained_residues],[])
+    modeller = app.Modeller(topology, positions)
+    modeller.delete(bad_side_chains)
+    
+    # Save model with deleted side chains to temporary file.
+    tmp_file = "side_chain_fix_tmp.pdb"
+    with open(tmp_file,"w") as handle:
+        app.PDBFile.writeFile(modeller.topology, modeller.positions, handle, keepIds=True)
+        
+    # Load model into pdbfixer
+    fixer = pdbfixer.PDBFixer(tmp_file)
+    os.remove(tmp_file)
+    
+    # Repair deleted side chains 
+    fixer.findMissingResidues()
+    fixer.findMissingAtoms()
+    fixer.addMissingAtoms()
+
+    # Fill in the gaps with OpenMM Modeller
+    modeller = app.Modeller(fixer.topology, fixer.positions)
+    modeller.addHydrogens(forcefield)
+
+    # Set up force field
+    system = forcefield.createSystem(modeller.topology)
+
+    # Set up integrator
+    integrator = LangevinIntegrator(0, 0.01, 0.0)
+
+    # Set up the simulation
+    simulation = app.Simulation(modeller.topology, system, integrator)
+    simulation.context.setPositions(modeller.positions)
+
+    # Minimize the energy
+    simulation.minimizeEnergy()
+    
+    return simulation.topology, simulation.context.getState(getPositions=True).getPositions()
