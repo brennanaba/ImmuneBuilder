@@ -288,7 +288,7 @@ def strained_sidechain_bonds_check(topology, positions):
     # Extract bond details to arrays
     for n in range(n_bonds):
         i[n],j[n],_x0,_k = bonds.getBondParameters(n)
-        k[n] = _k.value_in_unit(ENERGY/LENGTH**2)
+        k[n] = _k.value_in_unit(spring_unit)
         x0[n] = _x0.value_in_unit(LENGTH)
         
     # Check if there are any abnormally strained bond
