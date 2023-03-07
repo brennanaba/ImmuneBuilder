@@ -26,14 +26,14 @@ cutoffs = dict(
 forcefield = app.ForceField("amber14/protein.ff14SB.xml")
 
 
-def refine(input_file, output_file, tries=3, n=6):
+def refine(input_file, output_file, check_for_strained_bonds=True, tries=3, n=6):
     for i in range(tries):
-        if refine_once(input_file, output_file, n=n):
+        if refine_once(input_file, output_file, check_for_strained_bonds=check_for_strained_bonds, n=n):
             return True
     return False
 
 
-def refine_once(input_file, output_file, n=6):
+def refine_once(input_file, output_file, check_for_strained_bonds=True, n=6):
     k1s = [2.5,1,0.5,0.25,0.1,0.001]
     k2s = [2.5,5,7.5,15,25,50]
     success = False
@@ -81,17 +81,20 @@ def refine_once(input_file, output_file, n=6):
                 topology, positions = fixer.topology, fixer.positions
                 continue
 
-            # If all other checks pass, check and fix strained sidechain bonds:
-            try:
-                strained_bonds = strained_sidechain_bonds_check(topology, positions)
-                if len(strained_bonds) > 0:
-                    needs_recheck = True
-                    topology, positions = strained_sidechain_bonds_fixer(strained_bonds, topology, positions)
-                else:
-                    needs_recheck = False
-            except OpenMMException as e:
-                topology, positions = fixer.topology, fixer.positions
-                continue
+            if check_for_strained_bonds:
+                # If all other checks pass, check and fix strained sidechain bonds:
+                try:
+                    strained_bonds = strained_sidechain_bonds_check(topology, positions)
+                    if len(strained_bonds) > 0:
+                        needs_recheck = True
+                        topology, positions = strained_sidechain_bonds_fixer(strained_bonds, topology, positions)
+                    else:
+                        needs_recheck = False
+                except OpenMMException as e:
+                    topology, positions = fixer.topology, fixer.positions
+                    continue
+            else:
+                needs_recheck = False
 
             # If it passes all the tests, we are done
             tests = bond_check(topology, positions) and cis_check(topology, positions)

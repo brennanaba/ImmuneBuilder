@@ -46,7 +46,7 @@ class Antibody:
             file.write(unrefined)
 
 
-    def save_all(self, dirname=None, filename=None):
+    def save_all(self, dirname=None, filename=None, check_for_strained_bonds=True):
         if dirname is None:
             dirname="ABodyBuilder2_output"
         if filename is None:
@@ -60,22 +60,22 @@ class Antibody:
 
         np.save(os.path.join(dirname,"error_estimates"), self.error_estimates.mean(0).cpu().numpy())
         final_filename = os.path.join(dirname, filename)
-        refine(os.path.join(dirname,"rank0_unrefined.pdb"), final_filename)
+        refine(os.path.join(dirname,"rank0_unrefined.pdb"), final_filename, check_for_strained_bonds=check_for_strained_bonds)
         add_errors_as_bfactors(final_filename, self.error_estimates.mean(0).sqrt().cpu().numpy(), header=[header])
 
 
-    def save(self, filename=None):
+    def save(self, filename=None,check_for_strained_bonds=True):
         if filename is None:
             filename = "ABodyBuilder2_output.pdb"
 
         for i in range(len(self.atoms)):
             self.save_single_unrefined(filename, index=self.ranking.index(i))
-            success = refine(filename, filename)
+            success = refine(filename, filename, check_for_strained_bonds=check_for_strained_bonds)
             if success:
                 break
             else:
                 self.save_single_unrefined(filename, index=self.ranking.index(i))
-                success = refine(filename, filename)
+                success = refine(filename, filename, check_for_strained_bonds=check_for_strained_bonds)
                 if success:
                     break
 
@@ -147,8 +147,8 @@ def command_line_interface():
     parser.add_argument("--to_directory", help="Save all unrefined models and the top ranked refined model to a directory. " 
     "If this flag is set the output argument will be assumed to be a directory", default=False, action="store_true")
     parser.add_argument("-n", "--numbering_scheme", help="The scheme used to number output antibody structures. Available numbering schemes are: imgt, chothia, kabat, aho, wolfguy, martin and raw. Default is imgt.", default='imgt')
+    parser.add_argument("-u", "--no_sidechain_bond_check", help="Don't check for strained bonds. This is a bit faster but will rarely generate unphysical side chains", default=False, action="store_true")
     parser.add_argument("-v", "--verbose", help="Verbose output", default=False, action="store_true")
-
     args = parser.parse_args()
 
     if (args.heavy_sequence is not None) and (args.light_sequence is not None):
@@ -157,6 +157,8 @@ def command_line_interface():
         seqs = sequence_dict_from_fasta(args.fasta_file)
     else:
         raise ValueError("Missing input sequences")
+
+    check_for_strained_bonds = not args.no_sidechain_bond_check
 
     if args.verbose:
         print(description, flush=True)
@@ -174,11 +176,11 @@ def command_line_interface():
         print("Antibody modelled succesfully, starting refinement.", flush=True)
 
     if args.to_directory:
-        antibody.save_all(args.output)
+        antibody.save_all(args.output,check_for_strained_bonds)
         if args.verbose:
             print("Refinement finished. Saving all outputs to directory", flush=True)
     else:
-        antibody.save(args.output)
+        antibody.save(args.output,check_for_strained_bonds)
         if args.verbose:
             outfile = "ABodyBuilder2_output.pdb" if args.output is None else args.output
             print(f"Refinement finished. Saving final structure to {outfile}", flush=True)
