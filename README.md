@@ -20,16 +20,12 @@ To test the method out without installing it you can try this <a href="https://c
 
 ## Install
 
-You can install ImmuneBuilder via PyPI by doing:
-
-```bash
-$ pip install ImmuneBuilder
-```
+### Requirements
 
 This package requires PyTorch. If you do not already have PyTorch installed, you can do so following these <a href="https://pytorch.org/get-started/locally/">instructions</a>.
 
-It also requires OpenMM and pdbfixer for the refinement step. 
-OpenMM and pdbfixer can be installed via conda using:
+It also requires OpenMM and pdbfixer for the refinement step. For details on how to install OpenMM please follow these <a href="http://docs.openmm.org/latest/userguide/application/01_getting_started.html#installing-openmm">instructions</a>.  
+Alternatively, OpenMM and pdbfixer can be installed via conda using:
 
 ```bash
 $ conda install -c conda-forge openmm pdbfixer
@@ -39,6 +35,14 @@ It also uses anarci for trimming and numbering sequences. We recommend installin
 
 ```bash
 $ conda install -c bioconda anarci
+```
+
+### Install ImmuneBuilder
+
+Once you have all dependencies installed within one enviroment, you can install ImmuneBuilder via PyPI by doing:
+
+```bash
+$ pip install ImmuneBuilder
 ```
 
 ## Usage
@@ -150,7 +154,7 @@ The code and data in this package is based on the following paper <a href="https
 @article {Abanades2022.11.04.514231,
 	title = {ImmuneBuilder: Deep-Learning models for predicting the structures of immune proteins.},
 	author = {Abanades, Brennan and Wong, Wing Ki and Boyles, Fergus and Georges, Guy and Bujotzek, Alexander and Deane, Charlotte Mary},
- journal = {bioRxiv},
+	journal = {bioRxiv},
 	year = {2022},
 	doi = {10.1101/2022.11.04.514231},
 	publisher = {Cold Spring Harbor Laboratory}
