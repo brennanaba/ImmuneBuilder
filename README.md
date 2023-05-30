@@ -144,6 +144,7 @@ Please submit issues and pull requests on this <a href="https://github.com/brenn
 ### Known issues
 
 - Installing OpenMM from conda will automatically download the latest version of cudatoolkit which may not be compatible with your device. For more information on this please checkout the following <a href="https://github.com/brennanaba/ImmuneBuilder/issues/13">issue</a>.
+- After following install instructions I get an ```Import Error: `GLIBCXX_3.4.30' not found```. This is an issue with OpenMM, and can be solved by doing ```conda install -c conda-forge libstdcxx-ng```. See issue <a href="https://github.com/openmm/openmm/issues/3943">here</a>.
 
 
 ## Citing this work
@@ -151,13 +152,17 @@ Please submit issues and pull requests on this <a href="https://github.com/brenn
 The code and data in this package is based on the following paper <a href="https://www.biorxiv.org/content/10.1101/2022.11.04.514231v1">ImmuneBuilder</a>. If you use it, please cite:
 
 ```tex
-@article {Abanades2022.11.04.514231,
-	title = {ImmuneBuilder: Deep-Learning models for predicting the structures of immune proteins.},
-	author = {Abanades, Brennan and Wong, Wing Ki and Boyles, Fergus and Georges, Guy and Bujotzek, Alexander and Deane, Charlotte Mary},
-	journal = {bioRxiv},
-	year = {2022},
-	doi = {10.1101/2022.11.04.514231},
-	publisher = {Cold Spring Harbor Laboratory}
+@article{Abanades2023,
+	author = {Abanades, Brennan and Wong, Wing Ki and Boyles, Fergus and Georges, Guy and Bujotzek, Alexander and Deane, Charlotte M.},
+	doi = {10.1038/s42003-023-04927-7},
+	issn = {2399-3642},
+	journal = {Communications Biology},
+	number = {1},
+	pages = {575},
+	title = {ImmuneBuilder: Deep-Learning models for predicting the structures of immune proteins},
+	volume = {6},
+	year = {2023}
 }
 ```
+
 
