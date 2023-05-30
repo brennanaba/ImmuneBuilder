@@ -149,7 +149,7 @@ Please submit issues and pull requests on this <a href="https://github.com/brenn
 
 ## Citing this work
 
-The code and data in this package is based on the following paper <a href="https://www.biorxiv.org/content/10.1101/2022.11.04.514231v1">ImmuneBuilder</a>. If you use it, please cite:
+The code and data in this package is based on the following paper <a href="https://doi.org/10.1038/s42003-023-04927-7">ImmuneBuilder</a>. If you use it, please cite:
 
 ```tex
 @article{Abanades2023,
