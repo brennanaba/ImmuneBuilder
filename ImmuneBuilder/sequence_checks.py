@@ -4,7 +4,8 @@ def number_single_sequence(sequence, chain, scheme="imgt", allowed_species=['hum
     validate_sequence(sequence)
 
     try:
-        scheme = scheme_short_to_long[scheme.lower()]
+        if scheme != "raw":
+            scheme = scheme_short_to_long[scheme.lower()]
     except KeyError:
         raise NotImplementedError(f"Unimplemented numbering scheme: {scheme}")
 
