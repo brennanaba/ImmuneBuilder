@@ -180,11 +180,11 @@ def command_line_interface():
         print("Nanobody modelled succesfully, starting refinement.", flush=True)
 
     if args.to_directory:
-        antibody.save_all(args.output,check_for_strained_bonds)
+        antibody.save_all(args.output,check_for_strained_bonds=check_for_strained_bonds)
         if args.verbose:
             print("Refinement finished. Saving all outputs to directory", flush=True)
     else:
-        antibody.save(args.output,check_for_strained_bonds)
+        antibody.save(args.output,check_for_strained_bonds=check_for_strained_bonds)
         if args.verbose:
             outfile = "NanoBodyBuilder2_output.pdb" if args.output is None else args.output
             print(f"Refinement finished. Saving final structure to {outfile}", flush=True)
