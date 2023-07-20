@@ -46,7 +46,7 @@ class TCR:
             file.write(unrefined)
 
 
-    def save_all(self, dirname=None, filename=None, check_for_strained_bonds=True):
+    def save_all(self, dirname=None, filename=None, check_for_strained_bonds=True, n_threads=-1):
         if dirname is None:
             dirname="TCRBuilder2_output"
         if filename is None:
@@ -60,22 +60,22 @@ class TCR:
 
         np.save(os.path.join(dirname,"error_estimates"), self.error_estimates.mean(0).cpu().numpy())
         final_filename = os.path.join(dirname, filename)
-        refine(os.path.join(dirname,"rank0_unrefined.pdb"), final_filename, check_for_strained_bonds=check_for_strained_bonds)
+        refine(os.path.join(dirname,"rank0_unrefined.pdb"), final_filename, check_for_strained_bonds=check_for_strained_bonds, n_threads=n_threads)
         add_errors_as_bfactors(final_filename, self.error_estimates.mean(0).sqrt().cpu().numpy(), header=[header])
 
 
-    def save(self, filename=None, check_for_strained_bonds=True):
+    def save(self, filename=None, check_for_strained_bonds=True, n_threads=-1):
         if filename is None:
             filename = "TCRBuilder2_output.pdb"
 
         for i in range(len(self.atoms)):
             self.save_single_unrefined(filename, index=self.ranking.index(i))
-            success = refine(filename, filename, check_for_strained_bonds=check_for_strained_bonds)
+            success = refine(filename, filename, check_for_strained_bonds=check_for_strained_bonds, n_threads=n_threads)
             if success:
                 break
             else:
                 self.save_single_unrefined(filename, index=self.ranking.index(i))
-                success = refine(filename, filename, check_for_strained_bonds=check_for_strained_bonds)
+                success = refine(filename, filename, check_for_strained_bonds=check_for_strained_bonds, n_threads=n_threads)
                 if success:
                     break
 
@@ -147,6 +147,7 @@ def command_line_interface():
     parser.add_argument("-o", "--output", help="Path to where the output model should be saved. Defaults to the same directory as input file.", default=None)
     parser.add_argument("--to_directory", help="Save all unrefined models and the top ranked refined model to a directory. " 
     "If this flag is set the output argument will be assumed to be a directory", default=False, action="store_true")
+    parser.add_argument("--n_threads", help="The number of CPU threads to be used. If this option is set, refinement will be performed on CPU instead of GPU. By default, all available cores will be used.", type=int, default=-1)
     parser.add_argument("-u", "--no_sidechain_bond_check", help="Don't check for strained bonds. This is a bit faster but will rarely generate unphysical side chains", default=False, action="store_true")
     parser.add_argument("-v", "--verbose", help="Verbose output", default=False, action="store_true")
 
@@ -160,6 +161,9 @@ def command_line_interface():
         raise ValueError("Missing input sequences")
 
     check_for_strained_bonds = not args.no_sidechain_bond_check
+    
+    if args.n_threads > 0:
+        torch.set_num_threads(args.n_threads)    
 
     if args.verbose:
         print(description, flush=True)
@@ -177,11 +181,11 @@ def command_line_interface():
         print("TCR modelled succesfully, starting refinement.", flush=True)
 
     if args.to_directory:
-        tcr.save_all(args.output,check_for_strained_bonds=check_for_strained_bonds)
+        tcr.save_all(args.output,check_for_strained_bonds=check_for_strained_bonds, n_threads=args.n_threads)
         if args.verbose:
             print("Refinement finished. Saving all outputs to directory", flush=True)
     else:
-        tcr.save(args.output,check_for_strained_bonds=check_for_strained_bonds)
+        tcr.save(args.output,check_for_strained_bonds=check_for_strained_bonds, n_threads=args.n_threads)
         if args.verbose:
             outfile = "TCRBuilder2_output.pdb" if args.output is None else args.output
             print(f"Refinement finished. Saving final structure to {outfile}", flush=True)
