@@ -1,7 +1,7 @@
 import pdbfixer
 import os
 import numpy as np
-from openmm import app, LangevinIntegrator, CustomExternalForce, CustomTorsionForce, OpenMMException, unit
+from openmm import app, LangevinIntegrator, CustomExternalForce, CustomTorsionForce, OpenMMException, Platform, unit
 from scipy import spatial
 import logging
 logging.disable()
@@ -26,14 +26,14 @@ cutoffs = dict(
 forcefield = app.ForceField("amber14/protein.ff14SB.xml")
 
 
-def refine(input_file, output_file, check_for_strained_bonds=True, tries=3, n=6):
+def refine(input_file, output_file, check_for_strained_bonds=True, tries=3, n=6, n_threads=-1):
     for i in range(tries):
-        if refine_once(input_file, output_file, check_for_strained_bonds=check_for_strained_bonds, n=n):
+        if refine_once(input_file, output_file, check_for_strained_bonds=check_for_strained_bonds, n=n, n_threads=n_threads):
             return True
     return False
 
 
-def refine_once(input_file, output_file, check_for_strained_bonds=True, n=6):
+def refine_once(input_file, output_file, check_for_strained_bonds=True, n=6, n_threads=-1):
     k1s = [2.5,1,0.5,0.25,0.1,0.001]
     k2s = [2.5,5,7.5,15,25,50]
     success = False
@@ -51,7 +51,7 @@ def refine_once(input_file, output_file, check_for_strained_bonds=True, n=6):
 
     for i in range(n):
         try:
-            simulation = minimize_energy(topology, positions, k1=k1, k2 = k2)
+            simulation = minimize_energy(topology, positions, k1=k1, k2 = k2, n_threads=n_threads)
             topology, positions = simulation.topology, simulation.context.getState(getPositions=True).getPositions()
             acceptable_bonds, trans_peptide_bonds = bond_check(topology, positions), cis_check(topology, positions)
         except OpenMMException as e:
@@ -87,7 +87,7 @@ def refine_once(input_file, output_file, check_for_strained_bonds=True, n=6):
                     strained_bonds = strained_sidechain_bonds_check(topology, positions)
                     if len(strained_bonds) > 0:
                         needs_recheck = True
-                        topology, positions = strained_sidechain_bonds_fixer(strained_bonds, topology, positions)
+                        topology, positions = strained_sidechain_bonds_fixer(strained_bonds, topology, positions, n_threads=n_threads)
                     else:
                         needs_recheck = False
                 except OpenMMException as e:
@@ -110,7 +110,7 @@ def refine_once(input_file, output_file, check_for_strained_bonds=True, n=6):
     return success
 
 
-def minimize_energy(topology, positions, k1=2.5, k2=2.5):
+def minimize_energy(topology, positions, k1=2.5, k2=2.5, n_threads=-1):
     # Fill in the gaps with OpenMM Modeller
     modeller = app.Modeller(topology, positions)
     modeller.addHydrogens(forcefield)
@@ -152,7 +152,12 @@ def minimize_energy(topology, positions, k1=2.5, k2=2.5):
     integrator = LangevinIntegrator(0, 0.01, 0.0)
 
     # Set up the simulation
-    simulation = app.Simulation(modeller.topology, system, integrator)
+    if n_threads > 0:
+        # Set number of threads used by OpenMM
+        platform = Platform.getPlatformByName('CPU')
+        simulation = app.Simulation(modeller.topology, system, integrator, platform, {'Threads': str(n_threads)})
+    else:
+        simulation = app.Simulation(modeller.topology, system, integrator)
     simulation.context.setPositions(modeller.positions)
 
     # Minimize the energy
@@ -302,7 +307,7 @@ def strained_sidechain_bonds_check(topology, positions):
     return [atoms[x].residue for x in i[check]]
 
 
-def strained_sidechain_bonds_fixer(strained_residues, topology, positions):
+def strained_sidechain_bonds_fixer(strained_residues, topology, positions, n_threads=-1):
     # Delete all atoms except the main chain for badly refined residues.
     bb_atoms = ["N","CA","C"]
     bad_side_chains = sum([[atom for atom in residue.atoms() if atom.name not in bb_atoms] for residue in strained_residues],[])
@@ -334,7 +339,12 @@ def strained_sidechain_bonds_fixer(strained_residues, topology, positions):
     integrator = LangevinIntegrator(0, 0.01, 0.0)
 
     # Set up the simulation
-    simulation = app.Simulation(modeller.topology, system, integrator)
+    if n_threads > 0:
+        # Set number of threads used by OpenMM
+        platform = Platform.getPlatformByName('CPU')
+        simulation = app.Simulation(modeller.topology, system, integrator, platform, {'Threads', str(n_threads)})
+    else:
+        simulation = app.Simulation(modeller.topology, system, integrator)    
     simulation.context.setPositions(modeller.positions)
 
     # Minimize the energy
