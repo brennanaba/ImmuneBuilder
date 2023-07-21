@@ -135,9 +135,11 @@ class TCRBuilder2:
             weights_dir = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "trained_model"
             )
-        if os.path.exists(os.path.join(weights_dir, 'embed_dims.json')):
-            with open(os.path.join(weights_dir, 'embed_dim.json'), 'r') as f:
-            embed_dim = json.load(f)
+        # if os.path.exists(os.path.join(weights_dir, "embed_dims.json")):
+        #     with open(os.path.join(weights_dir, "embed_dims.json"), "r") as f:
+        #         embed_dim = json.load(f)
+        # else:
+        #     embed_dim = embed_dim
 
         self.models = {}
         for id in model_ids:
