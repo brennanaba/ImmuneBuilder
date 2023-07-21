@@ -3,6 +3,7 @@ import numpy as np
 import os
 import sys
 import argparse
+import json
 from ImmuneBuilder.models import StructureModule
 from ImmuneBuilder.util import (
     get_encoding,
@@ -19,7 +20,7 @@ from ImmuneBuilder.sequence_checks import number_sequences
 embed_dim = {
     "tcr_model_1": 128,
     "tcr_model_2": 128,
-    "tcr_model_3": 128,
+    "tcr_model_3": 256,
     "tcr_model_4": 256,
 }
 
@@ -134,6 +135,9 @@ class TCRBuilder2:
             weights_dir = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "trained_model"
             )
+        if os.path.exists(os.path.join(weights_dir, 'embed_dims.json')):
+            with open(os.path.join(weights_dir, 'embed_dim.json'), 'r') as f:
+            embed_dim = json.load(f)
 
         self.models = {}
         for id in model_ids:
