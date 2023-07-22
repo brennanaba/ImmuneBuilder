@@ -17,7 +17,7 @@ from ImmuneBuilder.util import (
 from ImmuneBuilder.refine import refine
 from ImmuneBuilder.sequence_checks import number_sequences
 
-embed_dim = {
+EMBED_DIM = {
     "tcr_model_1": 128,
     "tcr_model_2": 128,
     "tcr_model_3": 256,
@@ -135,11 +135,11 @@ class TCRBuilder2:
             weights_dir = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "trained_model"
             )
-        # if os.path.exists(os.path.join(weights_dir, "embed_dims.json")):
-        #     with open(os.path.join(weights_dir, "embed_dims.json"), "r") as f:
-        #         embed_dim = json.load(f)
-        # else:
-        #     embed_dim = embed_dim
+        if os.path.exists(os.path.join(weights_dir, "embed_dims.json")):
+            with open(os.path.join(weights_dir, "embed_dims.json"), "r") as f:
+                embed_dim = json.load(f)
+        else:
+            embed_dim = EMBED_DIM
 
         self.models = {}
         for id in model_ids:
