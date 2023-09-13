@@ -108,7 +108,7 @@ def add_errors_as_bfactors(filename, errors, header=[]):
     with open(filename) as file:
         txt = file.readlines()
 
-    new_txt = header.copy()
+    new_txt = [x for x in header]
     residue_index = -1
     position = "  "
 
