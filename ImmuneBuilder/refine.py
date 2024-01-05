@@ -315,7 +315,8 @@ def strained_sidechain_bonds_fixer(strained_residues, topology, positions, n_thr
     modeller.delete(bad_side_chains)
     
     # Save model with deleted side chains to temporary file.
-    tmp_file = "side_chain_fix_tmp.pdb"
+    random_number = str(int(np.random.rand()*10**8))
+    tmp_file = f"side_chain_fix_tmp_{random_number}.pdb"
     with open(tmp_file,"w") as handle:
         app.PDBFile.writeFile(modeller.topology, modeller.positions, handle, keepIds=True)
         
