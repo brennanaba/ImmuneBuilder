@@ -61,7 +61,11 @@ class TCR:
             file.write(unrefined)
 
     def save_all(
-        self, dirname=None, filename=None, check_for_strained_bonds=True
+        self,
+        dirname=None,
+        filename=None,
+        check_for_strained_bonds=True,
+        refine_all=False,
     ):
         if dirname is None:
             dirname = "TCRBuilder2_output"
@@ -71,7 +75,8 @@ class TCR:
 
         for i in range(len(self.atoms)):
             unrefined_filename = os.path.join(
-                dirname, f"rank{self.ranking.index(i)}_unrefined.pdb"
+                dirname,
+                f"rank_{self.ranking.index(i)}_model_{i}_unrefined.pdb",
             )
             self.save_single_unrefined(unrefined_filename, index=i)
 
@@ -79,17 +84,44 @@ class TCR:
             os.path.join(dirname, "error_estimates"),
             self.error_estimates.mean(0).cpu().numpy(),
         )
-        final_filename = os.path.join(dirname, filename)
-        refine(
-            os.path.join(dirname, "rank0_unrefined.pdb"),
-            final_filename,
-            check_for_strained_bonds=check_for_strained_bonds,
-        )
-        add_errors_as_bfactors(
-            final_filename,
-            self.error_estimates.mean(0).sqrt().cpu().numpy(),
-            header=[header],
-        )
+
+        if not refine_all:
+            final_filename = os.path.join(dirname, filename)
+            refine(
+                os.path.join(
+                    dirname,
+                    f"rank_0_model_{self.ranking.index(0)}_unrefined.pdb",
+                ),
+                final_filename,
+                check_for_strained_bonds=check_for_strained_bonds,
+            )
+
+            add_errors_as_bfactors(
+                final_filename,
+                self.error_estimates.mean(0).sqrt().cpu().numpy(),
+                header=[header],
+            )
+
+        else:
+            for i in range(len(self.atoms)):
+                unrefined_filename = os.path.join(
+                    dirname,
+                    f"rank_{self.ranking.index(i)}_model_{i}_unrefined.pdb",
+                )
+                refined_filename = os.path.join(
+                    dirname,
+                    f"rank_{self.ranking.index(i)}_model_{i}_refined.pdb",
+                )
+                refine(
+                    unrefined_filename,
+                    refined_filename,
+                    check_for_strained_bonds=check_for_strained_bonds,
+                )
+                add_errors_as_bfactors(
+                    refined_filename,
+                    self.error_estimates.mean(0).sqrt().cpu().numpy(),
+                    header=[header],
+                )
 
     def save(self, filename=None, check_for_strained_bonds=True):
         if filename is None:
