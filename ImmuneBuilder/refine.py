@@ -4,6 +4,8 @@ import numpy as np
 from openmm import app, LangevinIntegrator, CustomExternalForce, CustomTorsionForce, OpenMMException, Platform, unit
 from scipy import spatial
 import logging
+import tempfile
+
 logging.disable()
 
 ENERGY = unit.kilocalories_per_mole
@@ -315,14 +317,10 @@ def strained_sidechain_bonds_fixer(strained_residues, topology, positions, n_thr
     modeller.delete(bad_side_chains)
     
     # Save model with deleted side chains to temporary file.
-    random_number = str(int(np.random.rand()*10**8))
-    tmp_file = f"side_chain_fix_tmp_{random_number}.pdb"
-    with open(tmp_file,"w") as handle:
+    with tempfile.NamedTemporaryFile("w") as handle:
         app.PDBFile.writeFile(modeller.topology, modeller.positions, handle, keepIds=True)
-        
-    # Load model into pdbfixer
-    fixer = pdbfixer.PDBFixer(tmp_file)
-    os.remove(tmp_file)
+        # Load model into pdbfixer
+        fixer = pdbfixer.PDBFixer(handle.name)
     
     # Repair deleted side chains 
     fixer.findMissingResidues()
