@@ -1,3 +1,4 @@
+from pathlib import Path
 import pdbfixer
 import os
 import numpy as np
@@ -89,7 +90,7 @@ def refine_once(input_file, output_file, check_for_strained_bonds=True, n=6, n_t
                     strained_bonds = strained_sidechain_bonds_check(topology, positions)
                     if len(strained_bonds) > 0:
                         needs_recheck = True
-                        topology, positions = strained_sidechain_bonds_fixer(strained_bonds, topology, positions, n_threads=n_threads)
+                        topology, positions = strained_sidechain_bonds_fixer(strained_bonds, topology, positions, tmp_dir=Path(input_file).parent, n_threads=n_threads)
                     else:
                         needs_recheck = False
                 except OpenMMException as e:
@@ -309,7 +310,7 @@ def strained_sidechain_bonds_check(topology, positions):
     return [atoms[x].residue for x in i[check]]
 
 
-def strained_sidechain_bonds_fixer(strained_residues, topology, positions, n_threads=-1):
+def strained_sidechain_bonds_fixer(strained_residues, topology, positions, tmp_dir, n_threads=-1):
     # Delete all atoms except the main chain for badly refined residues.
     bb_atoms = ["N","CA","C"]
     bad_side_chains = sum([[atom for atom in residue.atoms() if atom.name not in bb_atoms] for residue in strained_residues],[])
@@ -317,7 +318,7 @@ def strained_sidechain_bonds_fixer(strained_residues, topology, positions, n_thr
     modeller.delete(bad_side_chains)
     
     # Save model with deleted side chains to temporary file.
-    with tempfile.NamedTemporaryFile("w") as handle:
+    with tempfile.NamedTemporaryFile("w", dir=tmp_dir) as handle:
         app.PDBFile.writeFile(modeller.topology, modeller.positions, handle, keepIds=True)
         # Load model into pdbfixer
         fixer = pdbfixer.PDBFixer(handle.name)
