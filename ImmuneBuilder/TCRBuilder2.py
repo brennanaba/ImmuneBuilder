@@ -9,26 +9,36 @@ from ImmuneBuilder.refine import refine
 from ImmuneBuilder.sequence_checks import number_sequences
 
 embed_dim = {
-    "tcr_model_1":128,
-    "tcr_model_2":128,
-    "tcr_model_3":256,
-    "tcr_model_4":256
+    "tcr2_plus_model_1":256,
+    "tcr2_plus_model_2":256,
+    "tcr2_plus_model_3":128,
+    "tcr2_plus_model_4":128,
+    "tcr2_model_1":128,
+    "tcr2_model_2":128,
+    "tcr2_model_3":256,
+    "tcr2_model_4":256,
 }
 
 model_urls = {
-    "tcr_model_1": "https://zenodo.org/record/7258553/files/tcr_model_1?download=1",
-    "tcr_model_2": "https://zenodo.org/record/7258553/files/tcr_model_2?download=1",
-    "tcr_model_3": "https://zenodo.org/record/7258553/files/tcr_model_3?download=1",
-    "tcr_model_4": "https://zenodo.org/record/7258553/files/tcr_model_4?download=1",
+    "tcr2_plus_model_1": "https://zenodo.org/records/10892159/files/tcr_model_1?download=1",
+    "tcr2_plus_model_2": "https://zenodo.org/record/10892159/files/tcr_model_2?download=1",
+    "tcr2_plus_model_3": "https://zenodo.org/record/10892159/files/tcr_model_3?download=1",
+    "tcr2_plus_model_4": "https://zenodo.org/record/10892159/files/tcr_model_4?download=1",
+    "tcr2_model_1": "https://zenodo.org/record/7258553/files/tcr_model_1?download=1",
+    "tcr2_model_2": "https://zenodo.org/record/7258553/files/tcr_model_2?download=1",
+    "tcr2_model_3": "https://zenodo.org/record/7258553/files/tcr_model_3?download=1",
+    "tcr2_model_4": "https://zenodo.org/record/7258553/files/tcr_model_4?download=1",
 }
 
-header = "REMARK  TCR STRUCTURE MODELLED USING TCRBUILDER2                                \n"
-
 class TCR:
-    def __init__(self, numbered_sequences, predictions):
+    def __init__(self, numbered_sequences, predictions, header=None):
         self.numbered_sequences = numbered_sequences
         self.atoms = [x[0] for x in predictions]
         self.encodings = [x[1] for x in predictions]
+        if header is not None:
+            self.header = header
+        else:
+            self.header = "REMARK  TCR STRUCTURE MODELLED USING TCRBUILDER2+                               \n"
 
         with torch.no_grad():
             traces = torch.stack([x[:,0] for x in self.atoms])
@@ -61,7 +71,7 @@ class TCR:
         np.save(os.path.join(dirname,"error_estimates"), self.error_estimates.mean(0).cpu().numpy())
         final_filename = os.path.join(dirname, filename)
         refine(os.path.join(dirname,"rank0_unrefined.pdb"), final_filename, check_for_strained_bonds=check_for_strained_bonds, n_threads=n_threads)
-        add_errors_as_bfactors(final_filename, self.error_estimates.mean(0).sqrt().cpu().numpy(), header=[header])
+        add_errors_as_bfactors(final_filename, self.error_estimates.mean(0).sqrt().cpu().numpy(), header=[self.header])
 
 
     def save(self, filename=None, check_for_strained_bonds=True, n_threads=-1):
@@ -81,26 +91,32 @@ class TCR:
 
         if not success:
             print(f"FAILED TO REFINE {filename}.\nSaving anyways.", flush=True)
-        add_errors_as_bfactors(filename, self.error_estimates.mean(0).sqrt().cpu().numpy(), header=[header])  
+        add_errors_as_bfactors(filename, self.error_estimates.mean(0).sqrt().cpu().numpy(), header=[self.header])
 
 
 class TCRBuilder2:
-    def __init__(self, model_ids = [1,2,3,4], weights_dir=None, numbering_scheme='imgt'):
+    def __init__(self, model_ids = [1,2,3,4], weights_dir=None, numbering_scheme='imgt', use_TCRBuilder2_PLUS_weights=True):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.scheme = numbering_scheme
+        self.use_TCRBuilder2_PLUS_weights = use_TCRBuilder2_PLUS_weights
         if weights_dir is None:
             weights_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "trained_model")
 
         self.models = {}
         for id in model_ids:
-            model_file = f"tcr_model_{id}"
-            model = StructureModule(rel_pos_dim=64, embed_dim=embed_dim[model_file]).to(self.device)
+            if use_TCRBuilder2_PLUS_weights:
+                model_file = f"tcr_model_{id}"
+                model_key = f'tcr2_plus_model_{id}'
+            else:
+                model_file = f"tcr2_model_{id}"
+                model_key = f'tcr2_model_{id}'
+            model = StructureModule(rel_pos_dim=64, embed_dim=embed_dim[model_key]).to(self.device)
             weights_path = os.path.join(weights_dir, model_file)
 
             try:
                 if not are_weights_ready(weights_path):
                     print(f"Downloading weights for {model_file}...", flush=True)
-                    download_file(model_urls[model_file], weights_path)
+                    download_file(model_urls[model_key], weights_path)
 
                 model.load_state_dict(torch.load(weights_path, map_location=torch.device(self.device)))
             except Exception as e:
@@ -127,15 +143,23 @@ class TCRBuilder2:
                 pred = self.models[model_file](encoding, full_seq)
                 outputs.append(pred)
 
-        return TCR(numbered_sequences, outputs)
+        if self.use_TCRBuilder2_PLUS_weights:
+            header = "REMARK  TCR STRUCTURE MODELLED USING TCRBUILDER2+                               \n"
+        else:
+            header = "REMARK  TCR STRUCTURE MODELLED USING TCRBUILDER2                                \n"
+
+        return TCR(numbered_sequences, outputs, header)
 
 
 def command_line_interface():
     description="""
-        TCRBuilder2                                                 || || 
+        TCRBuilder2                                                 || ||
         A Method for T-Cell Receptor Structure Prediction          |VB|VA| 
-        Author: Brennan Abanades Kenyon                            |CB|CA| 
+        Author: Brennan Abanades Kenyon, Nele Quast                |CB|CA|
         Supervisor: Charlotte Deane                             -------------
+
+        By default TCRBuilder2 will use TCRBuilder2+ weights.
+        To use the original weights, see options.
     """
 
     parser = argparse.ArgumentParser(prog="TCRBuilder2", description=description, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -150,6 +174,7 @@ def command_line_interface():
     parser.add_argument("--n_threads", help="The number of CPU threads to be used. If this option is set, refinement will be performed on CPU instead of GPU. By default, all available cores will be used.", type=int, default=-1)
     parser.add_argument("-u", "--no_sidechain_bond_check", help="Don't check for strained bonds. This is a bit faster but will rarely generate unphysical side chains", default=False, action="store_true")
     parser.add_argument("-v", "--verbose", help="Verbose output", default=False, action="store_true")
+    parser.add_argument("-og", "--original_weights", help="use original TCRBuilder2 weights instead of TCRBuilder2+", default=False, action="store_true")
 
     args = parser.parse_args()
 
@@ -172,7 +197,7 @@ def command_line_interface():
         print("Running sequences through deep learning model...", flush=True)
 
     try:
-        tcr = TCRBuilder2().predict(seqs)
+        tcr = TCRBuilder2(use_TCRBuilder2_PLUS_weights=not args.original_weights).predict(seqs)
     except AssertionError as e:
         print(e, flush=True)
         sys.exit(1)
