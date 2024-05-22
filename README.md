@@ -7,7 +7,9 @@
 </div>
 
 ---
-    
+
+## Update 1.1.1
+The weights of TCRBuilder2 have been updated to TCRBuilder2+. See the [pre-print](https://www.biorxiv.org/content/10.1101/2024.05.20.594940v1) for more information.
 
 ## Abstract
 
@@ -103,7 +105,7 @@ NanoBodyBuilder2 --fasta_file my_nanobody.fasta -v
 
 ### TCR structure prediction
 
-It is all pretty much the same for TCRs
+*UPDATE* - By default TCRBuilder2 now uses the TCRBuilder2+ weights. If you would like to use the original weights please specify `use_TCRBuilder2_PLUS_weights=False` or set the flag `--original_weights` from the command line. 
 
 ```python
 from ImmuneBuilder import TCRBuilder2
