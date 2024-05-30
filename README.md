@@ -167,4 +167,16 @@ The code and data in this package is based on the following paper <a href="https
 }
 ```
 
+TCRBuilder2+ is described in our pre-print: <a href="https://doi.org/10.1101/2024.05.20.594940">T-cell receptor structures and predictive models reveal comparable alpha and beta chain structural diversity despite differing genetic complexity</a>. If you use it, please cite:
+
+```tex
+@article {Quast2024,
+	author = {Quast, Nele P. and Abanades, Brennan and Guloglu, Bora and Karuppiah, Vijaykumar and Harper, Stephen and Raybould, Matthew I. J. and Deane, Charlotte M.},
+	title = {T-cell receptor structures and predictive models reveal comparable alpha and beta chain structural diversity despite differing genetic complexity},
+	year = {2024},
+	doi = {10.1101/2024.05.20.594940},
+	journal = {bioRxiv},
+}
+
+```
 
