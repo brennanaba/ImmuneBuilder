@@ -129,7 +129,7 @@ def add_errors_as_bfactors(filename, errors, header=[]):
 
 
 def are_weights_ready(weights_path):
-    if not os.path.exists(weights_path):
+    if not os.path.exists(weights_path) or os.path.getsize(weights_path) == 0:
         return False
     with open(weights_path, "rb") as f:
         filestart = str(f.readline())
