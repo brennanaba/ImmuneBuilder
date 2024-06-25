@@ -65,8 +65,8 @@ class TCR:
 
         for i in range(len(self.atoms)):
 
-            unrefined_filename = os.path.join(dirname,f"rank{self.ranking.index(i)}_unrefined.pdb")
-            self.save_single_unrefined(unrefined_filename, index=i)
+            unrefined_filename = os.path.join(dirname,f"rank{i}_unrefined.pdb")
+            self.save_single_unrefined(unrefined_filename, index=self.ranking[i])
 
         np.save(os.path.join(dirname,"error_estimates"), self.error_estimates.mean(0).cpu().numpy())
         final_filename = os.path.join(dirname, filename)
@@ -79,12 +79,12 @@ class TCR:
             filename = "TCRBuilder2_output.pdb"
 
         for i in range(len(self.atoms)):
-            self.save_single_unrefined(filename, index=self.ranking.index(i))
+            self.save_single_unrefined(filename, index=self.ranking[i])
             success = refine(filename, filename, check_for_strained_bonds=check_for_strained_bonds, n_threads=n_threads)
             if success:
                 break
             else:
-                self.save_single_unrefined(filename, index=self.ranking.index(i))
+                self.save_single_unrefined(filename, index=self.ranking[i])
                 success = refine(filename, filename, check_for_strained_bonds=check_for_strained_bonds, n_threads=n_threads)
                 if success:
                     break
