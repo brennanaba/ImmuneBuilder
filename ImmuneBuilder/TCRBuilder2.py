@@ -200,7 +200,7 @@ def command_line_interface():
         tcr = TCRBuilder2(use_TCRBuilder2_PLUS_weights=not args.original_weights).predict(seqs)
     except AssertionError as e:
         print(e, flush=True)
-        sys.exit(1)
+        raise
     
     if args.verbose:
         print("TCR modelled succesfully, starting refinement.", flush=True)

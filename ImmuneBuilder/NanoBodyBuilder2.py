@@ -178,7 +178,7 @@ def command_line_interface():
         antibody = NanoBodyBuilder2(numbering_scheme=args.numbering_scheme).predict(seqs)
     except AssertionError as e:
         print(e, flush=True)
-        sys.exit(1)
+        raise
 
     if args.verbose:
         print("Nanobody modelled succesfully, starting refinement.", flush=True)
