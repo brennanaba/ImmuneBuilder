@@ -29,22 +29,26 @@ def main(fasta, device, output):
 
     results = dict()
     for record in tqdm.tqdm(SeqIO.parse(fasta, "fasta")):
-        sequence_dict_numbered = _number_sequence({'H': str(record.seq)})
-        sequence_dict = _get_sequence_from_numbered(sequence_dict_numbered)
+        try:
+            sequence_dict_numbered = _number_sequence({'H': str(record.seq)})
+            sequence_dict = _get_sequence_from_numbered(sequence_dict_numbered)
 
-        node_features = _encode(sequence_dict)
-        sequence = sequence_dict['H']
+            node_features = _encode(sequence_dict)
+            sequence = sequence_dict['H']
 
-        # need to add dummy light chain key
-        sequence_dict_numbered['L'] = []
+            # need to add dummy light chain key
+            sequence_dict_numbered['L'] = []
 
-        outputs = []
-        with torch.no_grad():
-            for model in models:
-                out = model(node_features.to(device), sequence)
-                out = (out[0].detach().cpu(), out[1].detach().cpu())
-                outputs.append(out)
-        results[record.id] = {'predictions': outputs, 'sequence_numbered': sequence_dict_numbered}
+            outputs = []
+            with torch.no_grad():
+                for model in models:
+                    out = model(node_features.to(device), sequence)
+                    out = (out[0].detach().cpu(), out[1].detach().cpu())
+                    outputs.append(out)
+            results[record.id] = {'predictions': outputs, 'sequence_numbered': sequence_dict_numbered}
+        except Exception as e:
+            print(f"Error processing {record.id}: {e}")
+            continue
     
     torch.save(results, output)
 
