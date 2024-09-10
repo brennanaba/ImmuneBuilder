@@ -155,7 +155,8 @@ def minimize_energy(topology, positions, k1=2.5, k2=2.5, n_threads=-1):
     if n_threads > 0:
         # Set number of threads used by OpenMM
         platform = Platform.getPlatformByName('CPU')
-        simulation = app.Simulation(modeller.topology, system, integrator, platform, {'Threads': str(n_threads)})
+        platform.setPropertyDefaultValue('Threads', str(n_threads))
+        simulation = app.Simulation(modeller.topology, system, integrator, platform)
     else:
         simulation = app.Simulation(modeller.topology, system, integrator)
     simulation.context.setPositions(modeller.positions)
@@ -343,7 +344,8 @@ def strained_sidechain_bonds_fixer(strained_residues, topology, positions, n_thr
     if n_threads > 0:
         # Set number of threads used by OpenMM
         platform = Platform.getPlatformByName('CPU')
-        simulation = app.Simulation(modeller.topology, system, integrator, platform, {'Threads', str(n_threads)})
+        platform.setPropertyDefaultValue('Threads', str(n_threads))
+        simulation = app.Simulation(modeller.topology, system, integrator, platform)
     else:
         simulation = app.Simulation(modeller.topology, system, integrator)    
     simulation.context.setPositions(modeller.positions)
