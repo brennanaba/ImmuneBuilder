@@ -102,7 +102,7 @@ class NanoBodyBuilder2:
                     print(f"Downloading weights for {model_file}...", flush=True)
                     download_file(model_urls[model_file], weights_path)
 
-                model.load_state_dict(torch.load(weights_path, map_location=torch.device(self.device)))
+                model.load_state_dict(torch.load(weights_path, map_location=torch.device(self.device), weights_only=True))
             except Exception as e:
                 print(f"ERROR: {model_file} not downloaded or corrupted.", flush=True)
                 raise e

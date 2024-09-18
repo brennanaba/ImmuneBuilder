@@ -19,3 +19,14 @@ dependencies = [
     "scipy ~= 1.14",
     "anarci @ git+https://github.com/NaturalAntibody/ANARCI.git",
 ]
+
+[tool.poetry.dependencies]
+numpy = "~=1.26"
+packaging = "~= 24.1"
+pdbfixer = "git+https://github.com/openmm/pdbfixer.git"
+hmmer = "~= 3.4"
+torch = "~= 2.4"
+einops = "~= 0.8"
+requests = "~= 2.32"
+scipy = "~= 1.14"
+anarci = "git+https://github.com/NaturalAntibody/ANARCI.git"
