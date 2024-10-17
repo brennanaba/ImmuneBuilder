@@ -17,7 +17,7 @@ dependencies = [
     "einops ~= 0.8",
     "requests ~= 2.32",
     "scipy ~= 1.10",
-    "anarci @ git+https://github.com/BartoszJanuszNA/ANARCI.git",
+    "anarci @ git+https://github.com/NaturalAntibody/ANARCI.git",
 ]
 
 [tool.poetry.dependencies]
