@@ -51,3 +51,8 @@ def test_number_single_sequence_exceptions():
 
     with pytest.raises(AssertionError, match="Sequence provided as an L chain is not recognised as an L chain."):
         number_single_sequence(seq, "L")
+
+    seq = "EVQLVESGGGLVQPGGSLRLSCAA!GFTFSSYNMNWVRQAPGKGLEWVSYISSSSSTIYYADSVKGRFTISRDNAKNSLSLQMNSLRDEDTAVYYCARAYYAAAAAAAYGMDVWGQGTTVTVSS"
+
+    with pytest.raises(AssertionError, match="Unknown amino acid letter found in sequence: !"):
+        number_single_sequence(seq, "H")

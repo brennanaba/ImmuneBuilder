@@ -17,7 +17,6 @@ dependencies = [
     "einops ~= 0.8",
     "requests ~= 2.32",
     "scipy ~= 1.10",
-    "anarci @ git+https://github.com/NaturalAntibody/ANARCI.git",
     "riot_na ~= 1.2"
 ]
 
