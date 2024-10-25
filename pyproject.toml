@@ -18,7 +18,15 @@ dependencies = [
     "requests ~= 2.32",
     "scipy ~= 1.10",
     "anarci @ git+https://github.com/NaturalAntibody/ANARCI.git",
+    "riot_na ~= 1.2"
 ]
+
+[project.optional-dependencies]
+# development dependency group
+development = [
+    "pytest"
+]
+
 
 [tool.poetry.dependencies]
 numpy = "~=1.26"
